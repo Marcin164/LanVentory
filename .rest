@@ -1,0 +1,22 @@
+GET http://localhost:3000/devices 
+Content-Type: application/json
+
+###
+
+GET http://localhost:3000/devices/2
+Content-Type: application/json
+
+###
+
+GET http://localhost:3000/users
+Content-Type: application/json
+
+###
+
+GET http://localhost:3000/users/2
+Content-Type: application/json
+
+###
+
+GET http://localhost:3000/devices/user/2
+Content-Type: application/json
