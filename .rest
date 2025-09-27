@@ -3,12 +3,17 @@ Content-Type: application/json
 
 ###
 
-GET http://localhost:3000/devices/2
+GET http://localhost:3000/devices/1
 Content-Type: application/json
 
 ###
 
 GET http://localhost:3000/users
+Content-Type: application/json
+
+###
+
+GET http://localhost:3000/users/table
 Content-Type: application/json
 
 ###

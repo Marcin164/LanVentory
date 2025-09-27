@@ -1,16 +1,16 @@
 import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
-export class Form {
+export class Flows {
   @PrimaryGeneratedColumn()
-  idforms: number;
+  id: number;
 
   @Column()
-  ownerId: string;
+  ownerId: number;
 
   @Column()
   name: string;
 
   @Column()
-  url: string;
+  enabled: boolean;
 }

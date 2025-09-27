@@ -1,0 +1,270 @@
+{
+  "idDevice": 2,
+  "system_info": {
+    "system_name": "Windows",
+    "system_version": "10.0.19045",
+    "system_release": "10",
+    "system_build": "10.0.19045",
+    "architecture": "AMD64",
+    "hostname": "MARCINWRO",
+    "node_name": "MARCINWRO",
+    "processor": "Intel64 Family 6 Model 94 Stepping 3, GenuineIntel",
+    "platform": "Windows",
+    "platform_version": "10.0.19045",
+    "install_date": "23.12.2023, 20",
+    "boot_time": "2019-12-07T10:03:44.460978",
+    "cpu_count_logical": 4,
+    "cpu_count_physical": 4,
+    "memory_total": 17138040832,
+    "swap_total": 9663676416,
+    "python_version": "3.13.4"
+  },
+  "hardware_info": {
+    "cpu": [
+      {
+        "name": "Intel(R) Core(TM) i5-6500 CPU @ 3.20GHz",
+        "manufacturer": "GenuineIntel",
+        "processor_id": "BFEBFBFF000506E3",
+        "architecture": 9,
+        "caption": "Intel64 Family 6 Model 94 Stepping 3",
+        "socket": "U3E1",
+        "cores": 4,
+        "threads": 4,
+        "l2_cache": 1024,
+        "l3_cache": 6144,
+        "max_clock_speed": 3192,
+        "current_clock_speed": 3192
+      }
+    ],
+    "ram_modules": [
+      {
+        "capacity": "8589934592",
+        "speed": 2133,
+        "manufacturer": "Kingston",
+        "part_number": "KHX2133C14/8G       ",
+        "serial_number": "18264014",
+        "bank_label": "BANK 0",
+        "device_locator": "ChannelA-DIMM0"
+      }
+    ],
+    "disks": [
+      {
+        "model": "BIOSTAR S100-120GB",
+        "serial_number": "L37AAH0708787       ",
+        "size": "120031511040",
+        "interface_type": "SCSI",
+        "media_type": "Fixed hard disk media",
+        "pnp_device_id": "SCSI\\DISK&VEN_ATA&PROD_BIOSTAR_S100-120\\4&34A26128&0&030000",
+        "partitions": [
+          {
+            "device_id": "D:",
+            "volume_name": "Dysk2",
+            "file_system": "NTFS",
+            "total_size": 120015810560,
+            "free_space": 49993031680,
+            "used_space": 70022778880
+          }
+        ]
+      }
+    ],
+    "gpus": [
+      {
+        "name": "NVIDIA GeForce GTX 1060 6GB",
+        "driver_version": "32.0.15.6094",
+        "adapter_ram": -1048576,
+        "video_processor": "NVIDIA GeForce GTX 1060 6GB",
+        "pnp_device_id": "PCI\\VEN_10DE&DEV_1C03&SUBSYS_371A1458&REV_A1\\4&19D142C8&0&00E4",
+        "current_resolution": "1920x1080",
+        "max_refresh_rate": 75
+      }
+    ],
+    "baseboard": {
+      "manufacturer": "MSI",
+      "product": "Z170A TOMAHAWK (MS-7970)",
+      "serial_number": "G716791745",
+      "version": "1.0",
+      "asset_tag": null,
+      "hosting_board": true,
+      "powered_on": true
+    },
+    "bios": {
+      "manufacturer": "American Megatrends Inc.",
+      "version": "1.60",
+      "serial_number": "Default string",
+      "release_date": "20160523000000.000000+000",
+      "bios_tag": null,
+      "smbios_major": 3,
+      "smbios_minor": 0
+    },
+    "batteries": []
+  },
+  "network_info": {
+    "interfaces": {},
+    "stats": {},
+    "connections": [
+      {
+        "fd": -1,
+        "family": "AF_INET6",
+        "type": "SOCK_STREAM",
+        "laddr": "2a02:a317:e5d7:8800:c405:3d66:899f:5a47:63530",
+        "raddr": "2a03:2880:f330:85:face:b00c:0:6206:443",
+        "status": "ESTABLISHED",
+        "pid": 9692,
+        "process_name": "opera.exe"
+      }
+    ],
+    "fqdn": "MARCINWRO.play.pl",
+    "default_gateway": "5e08%14"
+  },
+  "users_info": {
+    "error": "Command 'net localgroup \"*Administratorzy\"' returned non-zero exit status 1."
+  },
+  "software_info": [
+    {
+      "name": "Pakiet sterowników systemu Windows - STMicroelectronics (usbser) Ports  (08/02/2013 1.4.0)",
+      "version": "08/02/2013 1.4.0",
+      "publisher": "STMicroelectronics",
+      "install_date": null
+    }
+  ],
+  "security_info": {
+    "antivirus": [
+      {
+        "name": "Windows Defender",
+        "path_to_exe": "windowsdefender://",
+        "state": 393472
+      },
+      {
+        "name": "Avast Antivirus",
+        "path_to_exe": "C:\\Program Files\\Avast Software\\Avast\\wsc_proxy.exe",
+        "state": 266240
+      }
+    ],
+    "firewall": {
+      "Domain": {
+        "Logging": ""
+      },
+      "Private": {
+        "Logging": ""
+      },
+      "Public": {
+        "Logging": ""
+      }
+    },
+    "updates": [
+      {
+        "hotfix_id": "KB5064400",
+        "description": "Update",
+        "installed_on": "9/13/2025"
+      }
+    ],
+    "bitlocker": {
+      "status": "Unknown"
+    },
+    "password_policy": {
+      "Po jakim czasie od wygasniecia czasu wymuszac wylogowanie?": "Nigdy",
+      "Minimalny okres waznosci hasla (dni)": "0",
+      "Maksymalny okres waznosci hasla (dni)": "42",
+      "Minimalna dlugosc hasla": "0",
+      "Dlugosc zapamietywanej historii hasel": "Brak",
+      "Prog blokady": "10",
+      "Lockout duration (minutes)": "10",
+      "Lockout observation window (minutes)": "10",
+      "Computer role": "STACJA ROBOCZA"
+    },
+    "uac_status": {
+      "enabled": true,
+      "consent_prompt_behavior_admin": 5,
+      "secure_desktop_prompt": 1
+    },
+    "rdp_status": {
+      "enabled": true,
+      "network_level_auth": true
+    },
+    "startup_apps": [
+      {
+        "name": "TeraTerm Menu",
+        "command": "TeraTerm Menu.lnk",
+        "location": "Startup"
+      }
+    ]
+  },
+  "peripherals_info": {
+    "usb_devices": ["Główny koncentrator USB (USB 3.0)"],
+    "keyboards": [
+      {
+        "name": "Rozszerzona (101 klawiszy lub 102 klawisze)",
+        "manufacturer": null,
+        "device_id": "HID\\VID_05AC&PID_0256&MI_01&COL03\\7&34E0E7E1&0&0002",
+        "pnp_device_id": "HID\\VID_05AC&PID_0256&MI_01&COL03\\7&34E0E7E1&0&0002",
+        "layout": "00000415",
+        "function_keys": 12,
+        "status": "OK"
+      }
+    ],
+    "mice": [
+      {
+        "name": "Urządzenie wejściowe USB",
+        "manufacturer": "(Standardowe urządzenia systemowe)",
+        "device_id": "USB\\VID_258A&PID_002E&MI_00\\6&6F620EF&1&0000",
+        "pnp_device_id": "USB\\VID_258A&PID_002E&MI_00\\6&6F620EF&1&0000",
+        "hardware_type": "Urządzenie wejściowe USB",
+        "buttons": 0,
+        "pointing_type": 2,
+        "status": "OK"
+      }
+    ],
+    "printers": [
+      {
+        "name": "OneNote for Windows 10",
+        "driver": "Microsoft Software Printer Driver",
+        "port": "Microsoft.Office.OneNote_16001.14326.22594.0_x64__8wekyb3d8bbwe_microsoft.onenoteim_S-1-5-21-3583242534-2329793005-3481748038-1001",
+        "device_id": "OneNote for Windows 10",
+        "pnp_device_id": null,
+        "default": false,
+        "shared": false,
+        "work_offline": false,
+        "status": "Unknown"
+      }
+    ],
+    "sound_devices": [
+      {
+        "name": "NVIDIA High Definition Audio",
+        "manufacturer": "NVIDIA",
+        "device_id": "HDAUDIO\\FUNC_01&VEN_10DE&DEV_0084&SUBSYS_1458371A&REV_1001\\5&D416B2A&0&0001",
+        "pnp_device_id": "HDAUDIO\\FUNC_01&VEN_10DE&DEV_0084&SUBSYS_1458371A&REV_1001\\5&D416B2A&0&0001",
+        "product_name": "NVIDIA High Definition Audio",
+        "status": "OK"
+      }
+    ],
+    "monitors": [
+      {
+        "name": "Standardowy monitor PnP",
+        "device_id": "DesktopMonitor1",
+        "pnp_device_id": "DISPLAY\\PHLC0B1\\5&3805EA7D&0&UID8448",
+        "screen_height": 1080,
+        "screen_width": 1920,
+        "status": "OK"
+      }
+    ],
+    "external_drives": []
+  },
+  "event_logs": {
+    "system": [
+      {
+        "time_generated": "Wed Sep 17 18:05:21 2025",
+        "source": "Service Control Manager",
+        "event_id": 7040,
+        "event_type": 4,
+        "event_category": 0,
+        "computer": "MARCINWRO",
+        "message": "('Usługa inteligentnego transferu w tle', 'uruchamianie na żądanie', 'autostart', 'BITS')"
+      }
+    ],
+    "security": [
+      {
+        "error": "(1314, 'OpenEventLogW', 'Klient nie ma wymaganych uprawnień.')"
+      }
+    ]
+  }
+}

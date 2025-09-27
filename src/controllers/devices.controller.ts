@@ -1,14 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Put,
-  Delete,
-  Req,
-  Body,
-  UseGuards,
-  Param,
-} from '@nestjs/common';
+import { Controller, Get, Post, Req, Body, Param } from '@nestjs/common';
 import { Request } from '@nestjs/common';
 import { DevicesService } from 'src/services/devices.service';
 

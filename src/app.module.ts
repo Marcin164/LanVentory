@@ -1,38 +1,55 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
-import { User } from './entities/users.entity';
-import { Device } from './entities/device.entity';
-import { Flow } from './entities/flow.entity';
-import { Form } from './entities/form.entity';
-import { History } from './entities/history.entity';
+import { Users } from './entities/users.entity';
+import { Devices } from './entities/devices.entity';
+import { Flows } from './entities/flows.entity';
+import { Forms } from './entities/forms.entity';
+import { Histories } from './entities/histories.entity';
 import { HistoryApprovers } from './entities/historyApprovers.entity';
+import { Applications } from './entities/applications.entity';
+import { DevicesApplications } from './entities/devicesApplications.entity';
 import { HistoryModule } from './modules/histories.module';
 import { DevicesModule } from './modules/devices.module';
 import { UsersModule } from './modules/users.module';
 import { FormsModule } from './modules/forms.module';
 import { FlowsModule } from './modules/flows.module';
+import { HistoryDevices } from './entities/historyDevices.entity';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot({
-      type: 'mysql',
+      type: 'postgres',
       host: 'localhost',
-      port: 3306,
-      username: 'root',
+      port: 5432,
+      username: 'Root',
       password: '12345678',
-      database: 'LanVentory',
+      database: 'AssetManager',
+      schema: 'public',
       entities: [
-        User,
-        Device,
-        Flow,
-        Form,
-        History,
+        Users,
+        Devices,
+        Flows,
+        Forms,
+        Histories,
         HistoryApprovers,
-        HistoryModule,
+        HistoryDevices,
+        Applications,
+        DevicesApplications,
       ],
-      synchronize: false,
+      synchronize: true,
     }),
+    TypeOrmModule.forFeature([
+      Users,
+      Devices,
+      Flows,
+      Forms,
+      Histories,
+      HistoryApprovers,
+      HistoryDevices,
+      Applications,
+      DevicesApplications,
+    ]),
     DevicesModule,
     UsersModule,
     FormsModule,

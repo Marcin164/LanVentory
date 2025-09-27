@@ -1,19 +1,16 @@
 import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
-export class History {
+export class Forms {
   @PrimaryGeneratedColumn()
-  idhistory: number;
+  id: number;
 
   @Column()
-  ticket: string;
+  ownerId: number;
 
   @Column()
-  date: string;
+  name: string;
 
   @Column()
-  details: string;
-
-  @Column()
-  justification: string;
+  url: string;
 }

@@ -1,16 +1,19 @@
 import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
-export class Flow {
+export class Applications {
   @PrimaryGeneratedColumn()
-  idflows: number;
-
-  @Column()
-  ownerId: string;
+  id: number;
 
   @Column()
   name: string;
 
   @Column()
-  enabled: boolean;
+  version: string;
+
+  @Column()
+  size: number;
+
+  @Column()
+  publisher: string;
 }

@@ -1,9 +1,9 @@
 import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
-export class User {
+export class Users {
   @PrimaryGeneratedColumn()
-  idusers: number;
+  id: number;
 
   @Column()
   name: string;
@@ -68,8 +68,8 @@ export class User {
   @Column()
   objectGUID: string;
 
-  @Column()
-  memberOf: string; // grupy, do których należy
+  @Column({ type: 'jsonb', nullable: true })
+  memberOf: Record<string, any>;
 
   @Column()
   accountExpires: Date;

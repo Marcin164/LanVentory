@@ -1,35 +1,30 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Device } from 'src/entities/device.entity';
+import { Devices } from 'src/entities/devices.entity';
 
 @Injectable()
 export class DevicesService {
   constructor(
-    @InjectRepository(Device)
-    private devicesRepository: Repository<Device>,
+    @InjectRepository(Devices)
+    private devicesRepository: Repository<Devices>,
   ) {}
 
-  async findAll(): Promise<Device[]> {
+  async findAll(): Promise<Devices[]> {
     return this.devicesRepository.find();
   }
 
   async findDevice(deviceId: any): Promise<any> {
-    const data: any = await this.devicesRepository.findOneBy({
-      iddevices: deviceId,
+    return await this.devicesRepository.findOneBy({
+      id: deviceId,
     });
-
-    const scanInfoParsed = JSON.parse(data?.scanInfo);
-
-    data.scanInfo = scanInfoParsed;
-    return data;
   }
 
   async updateScanInfoBySerialTag(scanInfo: any): Promise<any> {
     return await this.devicesRepository
       .createQueryBuilder()
-      .update(Device)
-      .set({ scanInfo: JSON.stringify(scanInfo) })
+      .update(Devices)
+      .set({}) //scanInfo: JSON.stringify(scanInfo)
       .where('iddevices = :idDevices', { idDevices: scanInfo.idDevice })
       .orWhere('serialNumber = :serialNumber', {
         serialNumber: scanInfo.hardware_info.baseboard.serial_number,
@@ -40,7 +35,7 @@ export class DevicesService {
   async findUserDevices(userId: string): Promise<any> {
     return await this.devicesRepository
       .createQueryBuilder('device')
-      .where('device.owner = :ownerId', { ownerId: userId })
+      .where('device.ownerId = :ownerId', { ownerId: userId })
       .getMany();
   }
 }
