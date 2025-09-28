@@ -32,6 +32,19 @@ export class DevicesService {
       .execute();
   }
 
+  async findDevicesWithApplication(id: any): Promise<any> {
+    return this.devicesRepository
+      .createQueryBuilder('devices')
+      .leftJoin('devices_applications', 'da', 'da.deviceId = devices.id')
+      .select([
+        'devices.id AS id',
+        'devices.system AS system',
+        'devices.serialNumber AS serialNumber',
+      ])
+      .where('da.applicationId = :id', { id })
+      .getRawMany();
+  }
+
   async findUserDevices(userId: string): Promise<any> {
     return await this.devicesRepository
       .createQueryBuilder('device')

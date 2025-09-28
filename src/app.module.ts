@@ -15,6 +15,7 @@ import { UsersModule } from './modules/users.module';
 import { FormsModule } from './modules/forms.module';
 import { FlowsModule } from './modules/flows.module';
 import { HistoryDevices } from './entities/historyDevices.entity';
+import { ApplicationsModule } from './modules/applications.module';
 
 @Module({
   imports: [
@@ -55,6 +56,7 @@ import { HistoryDevices } from './entities/historyDevices.entity';
     FormsModule,
     FlowsModule,
     HistoryModule,
+    ApplicationsModule,
   ],
   controllers: [],
   providers: [],

@@ -21,6 +21,11 @@ export class DevicesController {
     return this.devicesService.findUserDevices(userId);
   }
 
+  @Get('/application/:id')
+  async findDevicesWithApllication(@Param('id') id: string): Promise<any> {
+    return this.devicesService.findDevicesWithApplication(id);
+  }
+
   @Post('/agent/data')
   receiveData(@Body() body: any) {
     return this.devicesService.updateScanInfoBySerialTag(body);
