@@ -26,6 +26,11 @@ export class UsersController {
     return this.usersService.findAllTable();
   }
 
+  @Get('/filters')
+  async getFilters() {
+    return this.usersService.getFilterOptions();
+  }
+
   @Get('/:id')
   async findUser(@Param('id') id: string): Promise<any> {
     return this.usersService.findUser(id);
