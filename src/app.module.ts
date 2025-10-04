@@ -16,6 +16,7 @@ import { FormsModule } from './modules/forms.module';
 import { FlowsModule } from './modules/flows.module';
 import { HistoryDevices } from './entities/historyDevices.entity';
 import { ApplicationsModule } from './modules/applications.module';
+import { AuthModule } from './modules/auth.module';
 
 @Module({
   imports: [
@@ -57,6 +58,7 @@ import { ApplicationsModule } from './modules/applications.module';
     FlowsModule,
     HistoryModule,
     ApplicationsModule,
+    AuthModule,
   ],
   controllers: [],
   providers: [],

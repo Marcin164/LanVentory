@@ -1,7 +1,17 @@
-import { Controller, Get, Post, Req, Body, Param } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Req,
+  Body,
+  Param,
+  UseGuards,
+} from '@nestjs/common';
 import { Request } from '@nestjs/common';
+import { AuthGuard } from 'src/guards/authGuard.guard';
 import { DevicesService } from 'src/services/devices.service';
 
+@UseGuards(AuthGuard)
 @Controller('devices')
 export class DevicesController {
   constructor(private readonly devicesService: DevicesService) {}
