@@ -9,6 +9,7 @@ import { Histories } from './entities/histories.entity';
 import { HistoryApprovers } from './entities/historyApprovers.entity';
 import { Applications } from './entities/applications.entity';
 import { DevicesApplications } from './entities/devicesApplications.entity';
+import { Dashboards } from './entities/dashboards.entity';
 import { HistoryModule } from './modules/histories.module';
 import { DevicesModule } from './modules/devices.module';
 import { UsersModule } from './modules/users.module';
@@ -17,6 +18,7 @@ import { FlowsModule } from './modules/flows.module';
 import { HistoryDevices } from './entities/historyDevices.entity';
 import { ApplicationsModule } from './modules/applications.module';
 import { AuthModule } from './modules/auth.module';
+import { DashboardsModule } from './modules/dashboards.module';
 
 @Module({
   imports: [
@@ -38,6 +40,7 @@ import { AuthModule } from './modules/auth.module';
         HistoryDevices,
         Applications,
         DevicesApplications,
+        Dashboards,
       ],
       synchronize: true,
     }),
@@ -51,6 +54,7 @@ import { AuthModule } from './modules/auth.module';
       HistoryDevices,
       Applications,
       DevicesApplications,
+      Dashboards,
     ]),
     DevicesModule,
     UsersModule,
@@ -58,6 +62,7 @@ import { AuthModule } from './modules/auth.module';
     FlowsModule,
     HistoryModule,
     ApplicationsModule,
+    DashboardsModule,
     AuthModule,
   ],
   controllers: [],
