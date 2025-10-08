@@ -18,6 +18,11 @@ export class ApplicationsController {
     return this.applicationsService.findAllTable();
   }
 
+  @Get('/filters')
+  async getFilters() {
+    return this.applicationsService.getFilterOptions();
+  }
+
   @Get('/:id')
   async findApplication(@Param('id') id: string): Promise<any> {
     return this.applicationsService.findApplication(id);

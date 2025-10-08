@@ -21,6 +21,11 @@ export class DevicesController {
     return this.devicesService.findAll();
   }
 
+  @Get('/filters')
+  async getFilters() {
+    return this.devicesService.getFilterOptions();
+  }
+
   @Get('/:deviceId')
   async findDevice(@Param('deviceId') deviceId: string): Promise<any> {
     return this.devicesService.findDevice(deviceId);

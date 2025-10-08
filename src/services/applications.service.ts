@@ -34,6 +34,27 @@ export class ApplicationsService {
       .getRawMany();
   }
 
+  async getFilterOptions() {
+    const filterFields = ['publisher'];
+
+    const options: Record<string, string[]> = {};
+
+    for (const field of filterFields) {
+      const values = await this.applicationsRepository
+        .createQueryBuilder('applications')
+        .select(`DISTINCT applications.${field}`, 'value')
+        .where(
+          `applications.${field} IS NOT NULL AND applications.${field} != ''`,
+        )
+        .orderBy('value', 'ASC')
+        .getRawMany();
+
+      options[field] = values.map((v) => v.value);
+    }
+
+    return options;
+  }
+
   async findApplication(id: any): Promise<any> {
     return this.applicationsRepository.findOneBy({ id });
   }
