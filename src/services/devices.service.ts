@@ -24,10 +24,21 @@ export class DevicesService {
     return await this.devicesRepository
       .createQueryBuilder()
       .update(Devices)
-      .set({}) //scanInfo: JSON.stringify(scanInfo)
-      .where('iddevices = :idDevices', { idDevices: scanInfo.idDevice })
+      .set({
+        system: scanInfo.system,
+        hardware: scanInfo.hardware,
+        software: scanInfo.software,
+        network: scanInfo.network,
+        users: scanInfo.users_and_groups,
+        security: scanInfo.security,
+        peripherals: scanInfo.peripherals,
+        eventLogs: scanInfo.events,
+        serialNumber: scanInfo?.hardware?.baseboard?.serial_number,
+        assetName: scanInfo?.system.hostname,
+      })
+      .where('id = :id', { id: 1 })
       .orWhere('serialNumber = :serialNumber', {
-        serialNumber: scanInfo.hardware_info.baseboard.serial_number,
+        serialNumber: scanInfo?.hardware?.baseboard?.serial_number ?? null,
       })
       .execute();
   }

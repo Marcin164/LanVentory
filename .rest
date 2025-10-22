@@ -30,3 +30,12 @@ Content-Type: application/json
 
 GET http://localhost:3000/devices/user/2
 Content-Type: application/json
+
+###
+
+POST http://localhost:3000/devices/agent/data
+Content-Type: application/json
+
+{
+    "name": "Marcin"
+}

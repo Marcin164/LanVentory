@@ -24,6 +24,9 @@ export class Devices {
   serialNumber: string;
 
   @Column()
+  assetName: string;
+
+  @Column()
   model: string;
 
   @Column()
