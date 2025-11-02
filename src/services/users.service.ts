@@ -14,17 +14,47 @@ export class UsersService {
     return this.usersRepository.find();
   }
 
+  async insertManyUsers(usersData: Partial<Users>[]): Promise<any> {
+    if (!Array.isArray(usersData) || usersData.length === 0) {
+      throw new Error('Brak danych użytkowników do wstawienia.');
+    }
+
+    const users = usersData.map((user: any) => {
+      return {
+        ...user,
+        name: user.givenName,
+        surname: user.sn,
+        email: user.userPrincipalName,
+        username: user.sAMAccountName,
+        city: user.l,
+        country: user.co,
+        phone: user.telephoneNumber,
+      };
+    });
+
+    try {
+      const result = await this.usersRepository.insert(
+        users.filter((user) => user.name),
+      );
+      return result;
+    } catch (error) {
+      console.log(error);
+      throw new Error('Nie udało się wstawić użytkowników do bazy danych.');
+    }
+  }
+
   async findAllTable(): Promise<any> {
     return this.usersRepository
       .createQueryBuilder('users')
       .leftJoin('devices', 'devices', 'users.id = devices.ownerId')
       .select([
         'users.id AS id',
-        'users.displayName AS displayName',
+        'users.name AS name',
+        'users.surname AS surname',
         'users.username AS username',
         'devices.system AS system',
         'devices.model AS model',
-        'users.lastLogon AS lastLogon',
+        // 'users.lastLogon AS lastLogon',
         'users.department AS department',
         'users.office AS office',
         'users.country AS country',

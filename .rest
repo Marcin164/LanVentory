@@ -39,3 +39,8 @@ Content-Type: application/json
 {
     "name": "Marcin"
 }
+
+###
+
+GET http://localhost:3000/users/ad/user
+Content-Type: application/json

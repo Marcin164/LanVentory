@@ -1,4 +1,6 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import adConfig from 'ad.config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { Users } from './entities/users.entity';
@@ -22,6 +24,10 @@ import { DashboardsModule } from './modules/dashboards.module';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [adConfig],
+    }),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'localhost',
