@@ -16,6 +16,18 @@ export class DevicesController {
   constructor(private readonly devicesService: DevicesService) {}
 
   @UseGuards(AuthGuard)
+  @Post()
+  async addDevice(@Body() body: any): Promise<any> {
+    return this.devicesService.addDevice(body);
+  }
+
+  // @UseGuards(AuthGuard)
+  @Get('/options')
+  async findDevicesWithSerial(): Promise<any> {
+    return this.devicesService.findDevicesWithSerial();
+  }
+
+  @UseGuards(AuthGuard)
   @Get()
   async findAll(@Req() req: Request): Promise<any> {
     return this.devicesService.findAll();

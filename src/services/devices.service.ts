@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Devices } from 'src/entities/devices.entity';
+import { uuidv4 } from 'src/helpers/uuidv4';
 
 @Injectable()
 export class DevicesService {
@@ -9,6 +10,38 @@ export class DevicesService {
     @InjectRepository(Devices)
     private devicesRepository: Repository<Devices>,
   ) {}
+
+  async findDevicesWithSerial(): Promise<any> {
+    return this.devicesRepository
+      .createQueryBuilder('devices')
+      .select([
+        'devices.id AS id',
+        'devices.model AS model',
+        'devices.manufacturer AS manufacturer',
+        'devices.serialNumber AS serialNumber',
+      ])
+      .where("devices.group='Computers'")
+      .orWhere("devices.group='Peripherals'")
+      .getRawMany();
+  }
+
+  async addDevice(device: any): Promise<any> {
+    const newDevice = this.devicesRepository.create({
+      id: uuidv4(),
+      group: device.group,
+      subgroup: device.subgroup,
+      ownerId: device.ownerId,
+      state: 'active',
+      isOn: false,
+      serialNumber: device.serialNumber,
+      assetName: device.assetName,
+      model: device.model,
+      manufacturer: device.manufacturer,
+      location: device.location,
+    });
+
+    return await this.devicesRepository.save(newDevice);
+  }
 
   async findAll(): Promise<Devices[]> {
     return this.devicesRepository.find();

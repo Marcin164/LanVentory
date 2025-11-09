@@ -1,38 +1,38 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, PrimaryColumn } from 'typeorm';
 
 @Entity()
 export class Devices {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryColumn()
+  id: string;
 
-  @Column()
+  @Column({ nullable: true })
   group: string;
 
-  @Column()
+  @Column({ nullable: true })
   subgroup: string;
 
-  @Column()
+  @Column({ nullable: true })
   ownerId: number;
 
-  @Column()
+  @Column({ nullable: true })
   state: string;
 
-  @Column()
+  @Column({ nullable: true, default: false })
   isOn: boolean;
 
-  @Column()
+  @Column({ nullable: true })
   serialNumber: string;
 
-  @Column()
+  @Column({ nullable: true })
   assetName: string;
 
-  @Column()
+  @Column({ nullable: true })
   model: string;
 
-  @Column()
+  @Column({ nullable: true })
   manufacturer: string;
 
-  @Column()
+  @Column({ nullable: true })
   location: string;
 
   @Column({ type: 'jsonb', nullable: true })

@@ -38,7 +38,6 @@ export class UsersService {
       );
       return result;
     } catch (error) {
-      console.log(error);
       throw new Error('Nie udało się wstawić użytkowników do bazy danych.');
     }
   }

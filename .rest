@@ -44,3 +44,8 @@ Content-Type: application/json
 
 GET http://localhost:3000/users/ad/user
 Content-Type: application/json
+
+###
+
+GET http://localhost:3000/devices/options
+Content-Type: application/json
