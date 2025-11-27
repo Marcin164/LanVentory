@@ -12,7 +12,7 @@ export class Devices {
   subgroup: string;
 
   @Column({ nullable: true })
-  ownerId: number;
+  ownerId: string;
 
   @Column({ nullable: true })
   state: string;

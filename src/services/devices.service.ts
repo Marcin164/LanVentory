@@ -25,6 +25,20 @@ export class DevicesService {
       .getRawMany();
   }
 
+  async assignDeviceToUser(deviceId: any, ownerId: any): Promise<Devices> {
+    const device = await this.devicesRepository.findOne({
+      where: { id: deviceId },
+    });
+
+    if (!device) {
+      throw new Error(`Device with ID ${deviceId} not found`);
+    }
+
+    device.ownerId = ownerId;
+
+    return await this.devicesRepository.save(device);
+  }
+
   async addDevice(device: any): Promise<any> {
     const newDevice = this.devicesRepository.create({
       id: uuidv4(),

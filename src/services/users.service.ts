@@ -51,7 +51,7 @@ export class UsersService {
         'users.name AS name',
         'users.surname AS surname',
         'users.username AS username',
-        'devices.system AS system',
+        'devices.assetName AS assetName',
         'devices.model AS model',
         // 'users.lastLogon AS lastLogon',
         'users.department AS department',

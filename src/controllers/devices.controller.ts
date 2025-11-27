@@ -7,7 +7,6 @@ import {
   Param,
   UseGuards,
 } from '@nestjs/common';
-import { Request } from '@nestjs/common';
 import { AuthGuard } from 'src/guards/authGuard.guard';
 import { DevicesService } from 'src/services/devices.service';
 
@@ -19,6 +18,12 @@ export class DevicesController {
   @Post()
   async addDevice(@Body() body: any): Promise<any> {
     return this.devicesService.addDevice(body);
+  }
+
+  @UseGuards(AuthGuard)
+  @Post('assign')
+  async assignDevice(@Body() body: { deviceId: any; ownerId: any }) {
+    return this.devicesService.assignDeviceToUser(body.deviceId, body.ownerId);
   }
 
   // @UseGuards(AuthGuard)
