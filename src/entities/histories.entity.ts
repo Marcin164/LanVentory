@@ -1,9 +1,10 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryColumn, JoinColumn, ManyToOne } from 'typeorm';
+import { Users } from './users.entity';
 
 @Entity()
 export class Histories {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryColumn()
+  id: string;
 
   @Column()
   ticket: string;
@@ -17,6 +18,10 @@ export class Histories {
   @Column()
   justification: string;
 
+  @ManyToOne(() => Users, { eager: true })
+  @JoinColumn({ name: 'userId' })
+  user: Users;
+
   @Column()
-  userId: number;
+  userId: string;
 }

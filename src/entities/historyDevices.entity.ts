@@ -3,11 +3,11 @@ import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 @Entity()
 export class HistoryDevices {
   @PrimaryGeneratedColumn()
-  id: number;
+  id: string;
 
   @Column()
-  devicesId: number;
+  deviceId: string;
 
   @Column()
-  historyId: number;
+  historyId: string;
 }

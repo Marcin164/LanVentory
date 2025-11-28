@@ -1,4 +1,12 @@
-import { Controller, Get, Req, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Req,
+  Body,
+  UseGuards,
+  Param,
+} from '@nestjs/common';
 import { Request } from '@nestjs/common';
 import { AuthGuard } from 'src/guards/authGuard.guard';
 import { HistoriesService } from 'src/services/histories.service';
@@ -11,5 +19,15 @@ export class HistoriesController {
   @Get()
   async findAll(@Req() req: Request): Promise<any> {
     return this.historiesService.findAll();
+  }
+
+  @Post()
+  async create(@Body() body: any): Promise<any> {
+    return this.historiesService.create(body);
+  }
+
+  @Get('owners/:deviceId')
+  async findDeviceOwners(@Param('deviceId') deviceId: string): Promise<any> {
+    return this.historiesService.findDeviceOwners(deviceId);
   }
 }

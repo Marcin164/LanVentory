@@ -1,15 +1,15 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryColumn } from 'typeorm';
 
 @Entity()
 export class DevicesApplications {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryColumn()
+  id: string;
 
   @Column()
-  deviceId: number;
+  deviceId: string;
 
   @Column()
-  applicationId: number;
+  applicationId: string;
 
   @Column()
   installationDate: string;
