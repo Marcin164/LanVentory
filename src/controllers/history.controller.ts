@@ -22,8 +22,8 @@ export class HistoriesController {
   }
 
   @Post()
-  async create(@Body() body: any): Promise<any> {
-    return this.historiesService.create(body);
+  async createHistory(@Body() body: any): Promise<any> {
+    return this.historiesService.createHistory(body);
   }
 
   @Get('owners/:deviceId')

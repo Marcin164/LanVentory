@@ -9,6 +9,7 @@ import { Flows } from './entities/flows.entity';
 import { Forms } from './entities/forms.entity';
 import { Histories } from './entities/histories.entity';
 import { HistoryApprovers } from './entities/historyApprovers.entity';
+import { HistoryComponents } from './entities/historyComponents.entity';
 import { Applications } from './entities/applications.entity';
 import { DevicesApplications } from './entities/devicesApplications.entity';
 import { Dashboards } from './entities/dashboards.entity';
@@ -17,7 +18,6 @@ import { DevicesModule } from './modules/devices.module';
 import { UsersModule } from './modules/users.module';
 import { FormsModule } from './modules/forms.module';
 import { FlowsModule } from './modules/flows.module';
-import { HistoryDevices } from './entities/historyDevices.entity';
 import { ApplicationsModule } from './modules/applications.module';
 import { AuthModule } from './modules/auth.module';
 import { DashboardsModule } from './modules/dashboards.module';
@@ -43,7 +43,7 @@ import { DashboardsModule } from './modules/dashboards.module';
         Forms,
         Histories,
         HistoryApprovers,
-        HistoryDevices,
+        HistoryComponents,
         Applications,
         DevicesApplications,
         Dashboards,
@@ -57,7 +57,7 @@ import { DashboardsModule } from './modules/dashboards.module';
       Forms,
       Histories,
       HistoryApprovers,
-      HistoryDevices,
+      HistoryComponents,
       Applications,
       DevicesApplications,
       Dashboards,

@@ -3,12 +3,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { HistoriesController } from 'src/controllers/history.controller';
 import { Histories } from 'src/entities/histories.entity';
 import { HistoryApprovers } from 'src/entities/historyApprovers.entity';
-import { HistoryDevices } from 'src/entities/historyDevices.entity';
+import { HistoryComponents } from 'src/entities/historyComponents.entity';
 import { HistoriesService } from 'src/services/histories.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Histories, HistoryApprovers, HistoryDevices]),
+    TypeOrmModule.forFeature([Histories, HistoryApprovers, HistoryComponents]),
   ],
   controllers: [HistoriesController],
   providers: [HistoriesService],
