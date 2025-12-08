@@ -41,17 +41,32 @@ export class HistoriesService {
       damages: history?.damages || '',
     });
 
-    if (history?.type === 3 && history.removedComponents?.length > 0) {
-      const componentsToSave = history.removedComponents.map(
-        (component: any) => ({
-          id: uuidv4(),
-          historyId: historyId,
-          deviceId: component.deviceId,
-          type: component.type,
-        }),
-      );
+    if (history?.type === 3) {
+      if (history.removedComponents?.length > 0) {
+        const removedComponentsToSave = history.removedComponents.map(
+          (component: any) => ({
+            id: uuidv4(),
+            historyId: historyId,
+            deviceId: component.deviceId,
+            type: 'remove',
+          }),
+        );
 
-      await this.historyComponentsRepository.save(componentsToSave);
+        await this.historyComponentsRepository.save(removedComponentsToSave);
+      }
+
+      if (history.addedComponents?.length > 0) {
+        const addedComponentsToSave = history.addedComponents.map(
+          (component: any) => ({
+            id: uuidv4(),
+            historyId: historyId,
+            deviceId: component,
+            type: 'added',
+          }),
+        );
+
+        await this.historyComponentsRepository.save(addedComponentsToSave);
+      }
     }
 
     return savedHistory;
