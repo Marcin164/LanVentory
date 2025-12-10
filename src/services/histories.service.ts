@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { getMetadataArgsStorage, Repository } from 'typeorm';
 import { uuidv4 } from 'src/helpers/uuidv4';
 import { Histories } from 'src/entities/histories.entity';
 import { HistoryApprovers } from 'src/entities/historyApprovers.entity';
@@ -34,7 +34,7 @@ export class HistoriesService {
       details: history?.details || '',
       date: history?.date || '',
       deviceId: history?.deviceId || '',
-      type: history?.type || '',
+      type: history?.type || 0,
       agent: history?.agent || '',
       isUserFault: history?.isUserFault || '',
       fixes: history?.fixes || '',
@@ -72,22 +72,38 @@ export class HistoriesService {
     return savedHistory;
   }
 
-  async findDeviceOwners(deviceId: string): Promise<any[]> {
-    const histories = await this.historiesRepository
-      .createQueryBuilder('h')
-      .where('h.deviceId = :deviceId', { deviceId })
-      .leftJoinAndSelect('h.components', 'components')
-      .leftJoin('components.device', 'device')
-      .addSelect([
-        'device.location',
-        'device.manufacturer',
-        'device.serialNumber',
-        'device.assetName',
-        'device.group',
-        'device.subgroup',
-        'device.model',
-      ])
-      .getMany();
+  async findDeviceHistory(deviceId: string): Promise<any[]> {
+    const histories = await this.historiesRepository.find({
+      where: { deviceId },
+      relations: {
+        user: true,
+        components: {
+          device: true,
+        },
+      },
+      select: {
+        components: {
+          device: {
+            location: true,
+            manufacturer: true,
+            serialNumber: true,
+            assetName: true,
+            group: true,
+            subgroup: true,
+            model: true,
+          },
+        },
+        user: true,
+        date: true,
+        details: true,
+        agent: true,
+        justification: true,
+        type: true,
+        isUserFault: true,
+        fixes: true,
+        damages: true,
+      },
+    });
 
     histories.forEach((h: any) => {
       h.components = h.components.map((c: any) => ({
@@ -95,7 +111,6 @@ export class HistoriesService {
         historyId: c.historyId,
         deviceId: c.deviceId,
         type: c.type,
-
         location: c.device?.location ?? null,
         manufacturer: c.device?.manufacturer ?? null,
         serialNumber: c.device?.serialNumber ?? null,
@@ -105,6 +120,16 @@ export class HistoriesService {
         model: c.device?.model ?? null,
       }));
     });
+
+    return histories;
+  }
+
+  async findUserHistory(userId: string): Promise<any[]> {
+    const histories = await this.historiesRepository
+      .createQueryBuilder('h')
+      .leftJoinAndSelect('h.device', 'device')
+      .where('h.userId = :userId', { userId })
+      .getMany();
 
     return histories;
   }

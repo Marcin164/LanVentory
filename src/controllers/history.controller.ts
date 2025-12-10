@@ -26,8 +26,13 @@ export class HistoriesController {
     return this.historiesService.createHistory(body);
   }
 
-  @Get('owners/:deviceId')
-  async findDeviceOwners(@Param('deviceId') deviceId: string): Promise<any> {
-    return this.historiesService.findDeviceOwners(deviceId);
+  @Get('device/:deviceId')
+  async findDeviceHistory(@Param('deviceId') deviceId: string): Promise<any> {
+    return this.historiesService.findDeviceHistory(deviceId);
+  }
+
+  @Get('user/:userId')
+  async findUserHistory(@Param('userId') userId: string): Promise<any> {
+    return this.historiesService.findUserHistory(userId);
   }
 }

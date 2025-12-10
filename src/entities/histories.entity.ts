@@ -4,13 +4,13 @@ import {
   PrimaryColumn,
   JoinColumn,
   ManyToOne,
-  ManyToMany,
-  JoinTable,
   OneToMany,
+  ManyToMany,
 } from 'typeorm';
-import { Users } from './users.entity';
 import { HistoryApprovers } from './historyApprovers.entity';
 import { HistoryComponents } from './historyComponents.entity';
+import { Users } from './users.entity';
+import { Devices } from './devices.entity';
 
 @Entity()
 export class Histories {
@@ -50,6 +50,10 @@ export class Histories {
 
   @Column({ nullable: true })
   userId: string;
+
+  @ManyToOne(() => Devices, { eager: true, nullable: true })
+  @JoinColumn({ name: 'deviceId' })
+  device: Devices;
 
   @Column({ nullable: true })
   deviceId: string;
