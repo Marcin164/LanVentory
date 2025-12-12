@@ -45,15 +45,17 @@ export class UsersService {
   async findAllTable(): Promise<any> {
     return this.usersRepository
       .createQueryBuilder('users')
-      .leftJoin('devices', 'devices', 'users.id = devices.ownerId')
+      .leftJoin('devices', 'devices', 'users.id = devices.userId')
       .select([
         'users.id AS id',
         'users.name AS name',
         'users.surname AS surname',
         'users.username AS username',
-        'devices.assetName AS assetName',
-        'devices.model AS model',
-        // 'users.lastLogon AS lastLogon',
+
+        // pobieramy *dowolne jedno* urządzenie poprzez MIN()
+        'MIN(devices.assetName) AS assetName',
+        'MIN(devices.model) AS model',
+
         'users.department AS department',
         'users.office AS office',
         'users.country AS country',
@@ -63,8 +65,20 @@ export class UsersService {
         'users.streetAddress AS street',
         'users.postalCode AS postalCode',
         'users.manager AS manager',
-        // 'users.enabled AS enabled',
       ])
+      .groupBy('users.id')
+      .addGroupBy('users.name')
+      .addGroupBy('users.surname')
+      .addGroupBy('users.username')
+      .addGroupBy('users.department')
+      .addGroupBy('users.office')
+      .addGroupBy('users.country')
+      .addGroupBy('users.city')
+      .addGroupBy('users.company')
+      .addGroupBy('users.title')
+      .addGroupBy('users.streetAddress')
+      .addGroupBy('users.postalCode')
+      .addGroupBy('users.manager')
       .getRawMany();
   }
 

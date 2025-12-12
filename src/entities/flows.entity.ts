@@ -6,7 +6,7 @@ export class Flows {
   id: string;
 
   @Column()
-  ownerId: string;
+  userId: string;
 
   @Column()
   name: string;

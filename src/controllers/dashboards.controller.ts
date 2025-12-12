@@ -22,7 +22,7 @@ export class DashboardsController {
   }
 
   @Post()
-  create(@Body() body: { name: string; ownerId: string }) {
-    return this.dashboardsService.createDashboard(body.name, body.ownerId);
+  create(@Body() body: { name: string; userId: string }) {
+    return this.dashboardsService.createDashboard(body.name, body.userId);
   }
 }

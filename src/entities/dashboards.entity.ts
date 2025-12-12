@@ -9,7 +9,7 @@ export class Dashboards {
   name: string;
 
   @Column({ nullable: true })
-  ownerId: string; // from propelauth
+  userId: string; // from propelauth
 
   @Column({ type: 'jsonb', nullable: true })
   cards: Record<string, any>;

@@ -1,4 +1,12 @@
-import { Entity, Column, PrimaryColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryColumn,
+  JoinColumn,
+  ManyToMany,
+  ManyToOne,
+} from 'typeorm';
+import { Users } from './users.entity';
 
 @Entity()
 export class Devices {
@@ -12,7 +20,11 @@ export class Devices {
   subgroup: string;
 
   @Column({ nullable: true })
-  ownerId: string;
+  userId: string;
+
+  @ManyToOne(() => Users, { nullable: true })
+  @JoinColumn({ name: 'userId' })
+  user: Users;
 
   @Column({ nullable: true })
   state: string;

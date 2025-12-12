@@ -14,10 +14,10 @@ export class DashboardsService {
     return this.dashboardsRepository.find();
   }
 
-  async createDashboard(name: string, ownerId: string): Promise<Dashboards> {
+  async createDashboard(name: string, userId: string): Promise<Dashboards> {
     const newDashboard = this.dashboardsRepository.create({
       name,
-      ownerId,
+      userId,
       cards: [],
     });
 

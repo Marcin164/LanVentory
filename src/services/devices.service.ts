@@ -25,7 +25,7 @@ export class DevicesService {
       .getRawMany();
   }
 
-  async assignDeviceToUser(deviceId: any, ownerId: any): Promise<Devices> {
+  async assignDeviceToUser(deviceId: string, userId: string): Promise<Devices> {
     const device = await this.devicesRepository.findOne({
       where: { id: deviceId },
     });
@@ -34,9 +34,9 @@ export class DevicesService {
       throw new Error(`Device with ID ${deviceId} not found`);
     }
 
-    device.ownerId = ownerId;
+    device.userId = userId;
 
-    return await this.devicesRepository.save(device);
+    return this.devicesRepository.save(device);
   }
 
   async addDevice(device: any): Promise<any> {
@@ -44,7 +44,7 @@ export class DevicesService {
       id: uuidv4(),
       group: device.group,
       subgroup: device.subgroup,
-      ownerId: device.ownerId,
+      userId: device.userId,
       state: 'active',
       isOn: false,
       serialNumber: device.serialNumber,
@@ -106,7 +106,14 @@ export class DevicesService {
   async findUserDevices(userId: string): Promise<any> {
     return await this.devicesRepository
       .createQueryBuilder('device')
-      .where('device.ownerId = :ownerId', { ownerId: userId })
+      .where('device.userId = :userId', { userId: userId })
+      .getMany();
+  }
+
+  async findDevicesTable(): Promise<any[]> {
+    return this.devicesRepository
+      .createQueryBuilder('d')
+      .leftJoinAndSelect('d.user', 'user')
       .getMany();
   }
 

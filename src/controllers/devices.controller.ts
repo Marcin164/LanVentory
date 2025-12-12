@@ -22,8 +22,8 @@ export class DevicesController {
 
   @UseGuards(AuthGuard)
   @Post('assign')
-  async assignDevice(@Body() body: { deviceId: any; ownerId: any }) {
-    return this.devicesService.assignDeviceToUser(body.deviceId, body.ownerId);
+  async assignDevice(@Body() body: { deviceId: any; userId: any }) {
+    return this.devicesService.assignDeviceToUser(body.deviceId, body.userId);
   }
 
   // @UseGuards(AuthGuard)
@@ -36,6 +36,12 @@ export class DevicesController {
   @Get()
   async findAll(@Req() req: Request): Promise<any> {
     return this.devicesService.findAll();
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('/table')
+  async findDevicesTable(@Req() req: Request): Promise<any> {
+    return this.devicesService.findDevicesTable();
   }
 
   @UseGuards(AuthGuard)

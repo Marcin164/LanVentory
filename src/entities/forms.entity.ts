@@ -6,7 +6,7 @@ export class Forms {
   id: string;
 
   @Column()
-  ownerId: string;
+  userId: string;
 
   @Column()
   name: string;
