@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Users } from 'src/entities/users.entity';
+import { uuidv4 } from 'src/helpers/uuidv4';
 
 @Injectable()
 export class UsersService {
@@ -14,7 +15,31 @@ export class UsersService {
     return this.usersRepository.find();
   }
 
-  async insertManyUsers(usersData: Partial<Users>[]): Promise<any> {
+  async insertOne(user: any): Promise<any> {
+    return this.usersRepository.insert({
+      id: uuidv4(),
+      distinguishedName: `${user.name} ${user.surname}`,
+      ...user,
+    });
+  }
+
+  async insertMany(users: any): Promise<any> {
+    if (!Array.isArray(users) || users.length === 0) {
+      throw new Error('Brak danych użytkowników do wstawienia.');
+    }
+
+    const mappedUsers = users.map((user) => {
+      return {
+        id: uuidv4(),
+        distinguishedName: `${user.name} ${user.surname}`,
+        ...user,
+      };
+    });
+
+    return await this.usersRepository.insert(mappedUsers);
+  }
+
+  async insertManyUsersAD(usersData: Partial<Users>[]): Promise<any> {
     if (!Array.isArray(usersData) || usersData.length === 0) {
       throw new Error('Brak danych użytkowników do wstawienia.');
     }
@@ -55,6 +80,7 @@ export class UsersService {
         // pobieramy *dowolne jedno* urządzenie poprzez MIN()
         'MIN(devices.assetName) AS assetName',
         'MIN(devices.model) AS model',
+        'MIN(devices.id) AS deviceId',
 
         'users.department AS department',
         'users.office AS office',

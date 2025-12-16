@@ -6,6 +6,7 @@ import {
   UseGuards,
   Param,
   Query,
+  Body,
 } from '@nestjs/common';
 import { Request } from '@nestjs/common';
 import { AuthGuard } from 'src/guards/authGuard.guard';
@@ -20,9 +21,9 @@ export class UsersController {
   ) {}
 
   @Get('/ad/user')
-  async getUser(@Query('username') username: string) {
+  async syncADUser(@Query('username') username: string) {
     const users = await this.adService.findAllUsers();
-    await this.usersService.insertManyUsers(users);
+    await this.usersService.insertManyUsersAD(users);
     return users || { message: 'Użytkownik nie znaleziony' };
   }
 
@@ -30,6 +31,18 @@ export class UsersController {
   @Get()
   async findAll(@Req() req: Request): Promise<any> {
     return this.usersService.findAll();
+  }
+
+  @UseGuards(AuthGuard)
+  @Post()
+  async insertOne(@Body() body: any): Promise<any> {
+    return this.usersService.insertOne(body);
+  }
+
+  @UseGuards(AuthGuard)
+  @Post('/many')
+  async insertMany(@Body() body: any): Promise<any> {
+    return this.usersService.insertMany(body);
   }
 
   @UseGuards(AuthGuard)
