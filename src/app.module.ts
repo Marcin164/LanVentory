@@ -21,6 +21,7 @@ import { FlowsModule } from './modules/flows.module';
 import { ApplicationsModule } from './modules/applications.module';
 import { AuthModule } from './modules/auth.module';
 import { DashboardsModule } from './modules/dashboards.module';
+// import { AgentsModule } from './modules/agent.module';
 
 @Module({
   imports: [
@@ -62,6 +63,7 @@ import { DashboardsModule } from './modules/dashboards.module';
       DevicesApplications,
       Dashboards,
     ]),
+    // AgentsModule,
     DevicesModule,
     UsersModule,
     FormsModule,
