@@ -11,7 +11,6 @@
 //   @Get('settings')
 //   async getMe(@Req() req: any) {
 //     const userId = (req as any).user.userId;
-//     console.log(userId);
 
 //     return this.userService.getUserMetadata(userId);
 //   }

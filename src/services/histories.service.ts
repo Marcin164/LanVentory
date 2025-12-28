@@ -69,6 +69,16 @@ export class HistoriesService {
       }
     }
 
+    if (history.approvers && history.approvers.length > 0) {
+      const approversToSave = history.approvers.map((approver: any) => ({
+        id: uuidv4(),
+        historyId: historyId,
+        userId: approver,
+      }));
+
+      await this.historyApproversRepository.save(approversToSave);
+    }
+
     return savedHistory;
   }
 
