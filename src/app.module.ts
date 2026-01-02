@@ -21,6 +21,9 @@ import { FlowsModule } from './modules/flows.module';
 import { ApplicationsModule } from './modules/applications.module';
 import { AuthModule } from './modules/auth.module';
 import { DashboardsModule } from './modules/dashboards.module';
+import { Tickets } from './entities/tickets.entity';
+import { TicketComments } from './entities/ticketsComments.entity';
+import { TicketsModule } from './modules/tickets.module';
 // import { AgentsModule } from './modules/agent.module';
 
 @Module({
@@ -48,6 +51,8 @@ import { DashboardsModule } from './modules/dashboards.module';
         Applications,
         DevicesApplications,
         Dashboards,
+        Tickets,
+        TicketComments,
       ],
       synchronize: true,
     }),
@@ -62,6 +67,8 @@ import { DashboardsModule } from './modules/dashboards.module';
       Applications,
       DevicesApplications,
       Dashboards,
+      Tickets,
+      TicketComments,
     ]),
     // AgentsModule,
     DevicesModule,
@@ -72,6 +79,7 @@ import { DashboardsModule } from './modules/dashboards.module';
     ApplicationsModule,
     DashboardsModule,
     AuthModule,
+    TicketsModule,
   ],
   controllers: [],
   providers: [],
