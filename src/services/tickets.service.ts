@@ -8,12 +8,18 @@ import {
   UpdateTicketDto,
 } from 'src/dto/tickets.dto';
 import { uuidv4 } from 'src/helpers/uuidv4';
+import { TicketsGateway } from 'src/gateways/tickets.gateway';
+import { TicketsComments } from 'src/entities/ticketsComments.entity';
 
 @Injectable()
 export class TicketsService {
   constructor(
     @InjectRepository(Tickets)
     private ticketsRepository: Repository<Tickets>,
+
+    @InjectRepository(TicketsComments)
+    private ticketsCommentsRepository: Repository<TicketsComments>,
+    private readonly ticketsGateway: TicketsGateway,
   ) {}
   async generateTicketNumber(): Promise<number> {
     const result = await this.ticketsRepository.query(
@@ -67,15 +73,15 @@ export class TicketsService {
   }
 
   async getTicketById(id: string) {
-    return this.ticketsRepository.findOne({
-      where: { id },
-      relations: ['requester', 'comments', 'device'],
-      order: {
-        comments: {
-          createdAt: 'ASC',
-        },
-      },
-    });
+    return await this.ticketsRepository
+      .createQueryBuilder('ticket')
+      .leftJoinAndSelect('ticket.requester', 'requester')
+      .leftJoinAndSelect('ticket.device', 'device')
+      .leftJoinAndSelect('ticket.comments', 'comments')
+      .leftJoinAndSelect('comments.author', 'author')
+      .where('ticket.id = :id', { id })
+      .orderBy('comments.createdAt', 'ASC')
+      .getOne();
   }
 
   async updateTicket(id: string, dto: UpdateTicketDto) {
@@ -89,5 +95,22 @@ export class TicketsService {
     });
 
     return this.ticketsRepository.save(ticket);
+  }
+
+  async createComment(ticketId: any, authorId: any, dto: any) {
+    const comment = this.ticketsCommentsRepository.create({
+      ticketId,
+      authorId,
+      content: dto.content,
+      type: dto.type,
+    });
+
+    const saved = await this.ticketsCommentsRepository.save(comment);
+
+    console.log('[COMMENT SAVED]', saved.id, saved.content);
+
+    this.ticketsGateway.emitNewComment(dto.ticketId, saved);
+
+    return saved;
   }
 }

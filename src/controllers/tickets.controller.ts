@@ -19,22 +19,31 @@ export class TicketsController {
   constructor(private readonly ticketsService: TicketsService) {}
 
   @Get()
-  getTickets(@Query() query: GetTicketsQueryDto) {
+  async getTickets(@Query() query: GetTicketsQueryDto) {
     return this.ticketsService.getTickets(query);
   }
 
   @Get(':id')
-  getTicket(@Param('id') id: string) {
+  async getTicket(@Param('id') id: string) {
     return this.ticketsService.getTicketById(id);
   }
 
   @Patch(':id')
-  updateTicket(@Param('id') id: string, @Body() dto: any) {
+  async updateTicket(@Param('id') id: string, @Body() dto: any) {
     return this.ticketsService.updateTicket(id, dto);
   }
 
   @Post()
   async createTicket(@Body() dto: CreateTicketDto): Promise<Tickets> {
     return this.ticketsService.createTicket(dto);
+  }
+
+  @Post('/comment/:id/:requesterId')
+  async createComment(
+    @Param('id') id: string,
+    @Param('requesterId') requesterId: string,
+    @Body() dto: any,
+  ): Promise<any> {
+    return this.ticketsService.createComment(id, requesterId, dto);
   }
 }

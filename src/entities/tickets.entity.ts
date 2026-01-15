@@ -10,7 +10,7 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { TicketComments } from './ticketsComments.entity';
+import { TicketsComments } from './ticketsComments.entity';
 import { Users } from './users.entity';
 import { Devices } from './devices.entity';
 
@@ -123,8 +123,8 @@ export class Tickets {
   @Column({ nullable: true })
   category: string;
 
-  @OneToMany(() => TicketComments, (comment) => comment.ticket)
-  comments: TicketComments[];
+  @OneToMany(() => TicketsComments, (comment) => comment.ticket)
+  comments: TicketsComments[];
 
   @CreateDateColumn()
   createdAt: Date;

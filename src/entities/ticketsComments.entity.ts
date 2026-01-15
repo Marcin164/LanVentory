@@ -1,13 +1,14 @@
 import {
   Entity,
   Column,
-  PrimaryColumn,
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
   JoinColumn,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Tickets } from './tickets.entity';
+import { Users } from './users.entity';
 
 export enum CommentType {
   PUBLIC = 'Public',
@@ -15,14 +16,14 @@ export enum CommentType {
 }
 
 @Entity()
-export class TicketComments {
-  @PrimaryColumn()
+export class TicketsComments {
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column()
   ticketId: string;
 
-  @ManyToOne(() => Tickets, (ticket: any) => ticket.comments, {
+  @ManyToOne(() => Tickets, (ticket) => ticket.comments, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'ticketId' })
@@ -30,6 +31,13 @@ export class TicketComments {
 
   @Column()
   authorId: string;
+
+  @ManyToOne(() => Users, {
+    eager: false, // ⬅️ ważne
+    nullable: false,
+  })
+  @JoinColumn({ name: 'authorId' })
+  author: Users;
 
   @Column()
   content: string;

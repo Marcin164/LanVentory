@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Users } from 'src/entities/users.entity';
 import { uuidv4 } from 'src/helpers/uuidv4';
+// import { propelAuth } from 'src/helpers/propelAuthClient';
 
 @Injectable()
 export class UsersService {
@@ -66,6 +67,38 @@ export class UsersService {
       throw new Error('Nie udało się wstawić użytkowników do bazy danych.');
     }
   }
+
+  // async syncUsersFromAD(adUsers: any[]): Promise<void> {
+  //   for (const user of adUsers) {
+  //     const email = user.userPrincipalName || user.mail;
+
+  //     if (!email) {
+  //       console.log(`Pomijam użytkownika bez emaila: ${user.sAMAccountName}`);
+  //       continue;
+  //     }
+
+  //     // 🔍 sprawdzenie duplikatu
+  //     const existing = await propelAuth.fetchUserMetadatassssssssssssByEmail(email);
+  //     if (existing) {
+  //       console.log(`Użytkownik ${email} już istnieje w PropelAuth`);
+  //       continue;
+  //     }
+
+  //     try {
+  //       await propelAuth.createUser({
+  //         email,
+  //         password: '1234567890',
+  //         firstName: user.givenName ?? '',
+  //         lastName: user.sn ?? '',
+  //         emailConfirmed: true,
+  //       });
+
+  //       console.log(`Utworzono użytkownika w PropelAuth: ${email}`);
+  //     } catch (err) {
+  //       console.error(`Błąd synchronizacji użytkownika ${email}`, err);
+  //     }
+  //   }
+  // }
 
   async findAllTable(): Promise<any> {
     return this.usersRepository
@@ -142,5 +175,10 @@ export class UsersService {
     }
 
     return options;
+  }
+
+  async resolveAuthIdToUserId(authId: string): Promise<any> {
+    const user = await this.usersRepository.findOneBy({ authUserId: authId });
+    return user;
   }
 }
