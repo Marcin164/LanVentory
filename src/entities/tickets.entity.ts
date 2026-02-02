@@ -13,6 +13,7 @@ import {
 import { TicketsComments } from './ticketsComments.entity';
 import { Users } from './users.entity';
 import { Devices } from './devices.entity';
+import { TicketsApprovals } from './ticketsApprovals.entity';
 
 export enum TicketType {
   INCIDENT = 'Incident',
@@ -123,8 +124,17 @@ export class Tickets {
   @Column({ nullable: true })
   category: string;
 
+  @Column({ nullable: true })
+  closureCode: string;
+
+  @Column({ nullable: true })
+  closureNotes: string;
+
   @OneToMany(() => TicketsComments, (comment) => comment.ticket)
   comments: TicketsComments[];
+
+  @OneToMany(() => TicketsApprovals, (approval) => approval.ticket)
+  approvals: TicketsApprovals[];
 
   @CreateDateColumn()
   createdAt: Date;

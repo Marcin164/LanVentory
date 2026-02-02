@@ -24,6 +24,9 @@ import { DashboardsModule } from './modules/dashboards.module';
 import { Tickets } from './entities/tickets.entity';
 import { TicketsComments } from './entities/ticketsComments.entity';
 import { TicketsModule } from './modules/tickets.module';
+import { TicketsApprovals } from './entities/ticketsApprovals.entity';
+import { UserSettings } from './entities/userSettings.entity';
+import { SettingsModule } from './modules/settings.module';
 
 @Module({
   imports: [
@@ -52,6 +55,8 @@ import { TicketsModule } from './modules/tickets.module';
         Dashboards,
         Tickets,
         TicketsComments,
+        TicketsApprovals,
+        UserSettings,
       ],
       synchronize: true,
     }),
@@ -68,6 +73,8 @@ import { TicketsModule } from './modules/tickets.module';
       Dashboards,
       Tickets,
       TicketsComments,
+      TicketsApprovals,
+      UserSettings,
     ]),
     DevicesModule,
     UsersModule,
@@ -78,6 +85,7 @@ import { TicketsModule } from './modules/tickets.module';
     DashboardsModule,
     AuthModule,
     TicketsModule,
+    SettingsModule,
   ],
   controllers: [],
   providers: [],

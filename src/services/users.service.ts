@@ -181,4 +181,9 @@ export class UsersService {
     const user = await this.usersRepository.findOneBy({ authUserId: authId });
     return user;
   }
+
+  async findApprovers(): Promise<any> {
+    const approvers = await this.usersRepository.findBy({ isApprover: true });
+    return approvers;
+  }
 }

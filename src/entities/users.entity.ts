@@ -56,6 +56,9 @@ export class Users {
   @Column({ nullable: true })
   manager: string; // DN lub ID managera
 
+  @Column({ nullable: true, default: false })
+  isApprover: boolean;
+
   @Column({ type: 'jsonb', nullable: true })
   memberOf: Record<string, any>;
 

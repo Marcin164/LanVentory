@@ -47,7 +47,7 @@ export class UsersController {
 
   @UseGuards(AuthGuard)
   @Get('/table')
-  async findAllTable(@Req() req: Request): Promise<any> {
+  async findAllTable(): Promise<any> {
     return this.usersService.findAllTable();
   }
 
@@ -55,6 +55,12 @@ export class UsersController {
   @Get('/filters')
   async getFilters() {
     return this.usersService.getFilterOptions();
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('/approvers')
+  async findApprovers(): Promise<any> {
+    return this.usersService.findApprovers();
   }
 
   @UseGuards(AuthGuard)

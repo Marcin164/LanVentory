@@ -34,7 +34,6 @@ export class AuthGuard implements CanActivate {
     let user: any;
     try {
       user = await validateAccessTokenAndGetUserClass(token);
-      console.log(user);
     } catch (err) {
       console.error('Błąd w weryfikacji tokena PropelAuth:', err);
       throw new UnauthorizedException('Token niepoprawny lub wygasł');

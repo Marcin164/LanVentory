@@ -5,9 +5,12 @@ import { TicketsController } from 'src/controllers/tickets.controller';
 import { TicketsService } from 'src/services/tickets.service';
 import { TicketsGateway } from 'src/gateways/tickets.gateway';
 import { TicketsComments } from 'src/entities/ticketsComments.entity';
+import { TicketsApprovals } from 'src/entities/ticketsApprovals.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Tickets, TicketsComments])],
+  imports: [
+    TypeOrmModule.forFeature([Tickets, TicketsComments, TicketsApprovals]),
+  ],
   controllers: [TicketsController],
   providers: [TicketsService, TicketsGateway],
   exports: [TicketsGateway],

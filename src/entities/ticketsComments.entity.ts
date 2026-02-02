@@ -33,7 +33,7 @@ export class TicketsComments {
   authorId: string;
 
   @ManyToOne(() => Users, {
-    eager: false, // ⬅️ ważne
+    eager: false,
     nullable: false,
   })
   @JoinColumn({ name: 'authorId' })

@@ -46,4 +46,26 @@ export class TicketsController {
   ): Promise<any> {
     return this.ticketsService.createComment(id, requesterId, dto);
   }
+
+  @Post('/approve/:ticketId/:requesterId/:approverId')
+  async createApproval(
+    @Param('ticketId') ticketId: string,
+    @Param('requesterId') requesterId: string,
+    @Param('approverId') approverId: string,
+  ): Promise<any> {
+    console.log('ticketId', ticketId);
+    return this.ticketsService.createApproval(
+      ticketId,
+      requesterId,
+      approverId,
+    );
+  }
+
+  @Patch('/approve/:id')
+  async updateApproval(
+    @Param('id') id: string,
+    @Body() dto: any,
+  ): Promise<any> {
+    return this.ticketsService.updateApproval(id, dto);
+  }
 }

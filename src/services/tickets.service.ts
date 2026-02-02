@@ -7,9 +7,9 @@ import {
   GetTicketsQueryDto,
   UpdateTicketDto,
 } from 'src/dto/tickets.dto';
-import { uuidv4 } from 'src/helpers/uuidv4';
 import { TicketsGateway } from 'src/gateways/tickets.gateway';
 import { TicketsComments } from 'src/entities/ticketsComments.entity';
+import { TicketsApprovals } from 'src/entities/ticketsApprovals.entity';
 
 @Injectable()
 export class TicketsService {
@@ -19,6 +19,10 @@ export class TicketsService {
 
     @InjectRepository(TicketsComments)
     private ticketsCommentsRepository: Repository<TicketsComments>,
+
+    @InjectRepository(TicketsApprovals)
+    private ticketsApprovalsRepository: Repository<TicketsApprovals>,
+
     private readonly ticketsGateway: TicketsGateway,
   ) {}
   async generateTicketNumber(): Promise<number> {
@@ -78,7 +82,9 @@ export class TicketsService {
       .leftJoinAndSelect('ticket.requester', 'requester')
       .leftJoinAndSelect('ticket.device', 'device')
       .leftJoinAndSelect('ticket.comments', 'comments')
+      .leftJoinAndSelect('ticket.approvals', 'approvals')
       .leftJoinAndSelect('comments.author', 'author')
+      .leftJoinAndSelect('approvals.approver', 'approver')
       .where('ticket.id = :id', { id })
       .orderBy('comments.createdAt', 'ASC')
       .getOne();
@@ -112,5 +118,25 @@ export class TicketsService {
     this.ticketsGateway.emitNewComment(dto.ticketId, saved);
 
     return saved;
+  }
+
+  async createApproval(ticketId: any, requesterId: any, approverId: any) {
+    const approval = this.ticketsApprovalsRepository.create({
+      ticketId,
+      requesterId,
+      approverId,
+      createdAt: new Date(),
+    });
+
+    const saved = await this.ticketsApprovalsRepository.save(approval);
+
+    return saved;
+  }
+
+  async updateApproval(id: any, dto: any) {
+    return await this.ticketsApprovalsRepository.update(id, {
+      ...dto,
+      decidedAt: new Date(),
+    });
   }
 }
