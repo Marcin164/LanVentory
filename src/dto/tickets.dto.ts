@@ -66,6 +66,12 @@ export class UpdateTicketDto {
 
   @IsOptional()
   category?: string;
+
+  @IsOptional()
+  state?: any;
+
+  @IsOptional()
+  resolvedAt?: Date;
 }
 
 export class CreateTicketDto {

@@ -27,6 +27,17 @@ import { TicketsModule } from './modules/tickets.module';
 import { TicketsApprovals } from './entities/ticketsApprovals.entity';
 import { UserSettings } from './entities/userSettings.entity';
 import { SettingsModule } from './modules/settings.module';
+import { AdminSettings } from './entities/adminSettings.entity';
+import { Calendar } from './entities/calendar.entity';
+import { CalendarHoliday } from './entities/calendarHoliday.entity';
+import { SlaDefinition } from './entities/slaDefinition.entity';
+import { SlaInstance } from './entities/slaInstance.entity';
+import { SlaPause } from './entities/slaPause.entity';
+import { SlaRule } from './entities/slaRule.entity';
+import { SlaModule } from './modules/sla.module';
+import { SlaEscalationInstance } from './entities/slaEscalationInstance.entity';
+import { SlaEscalationDefinition } from './entities/slaEscalationDefinition.entity';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -57,6 +68,15 @@ import { SettingsModule } from './modules/settings.module';
         TicketsComments,
         TicketsApprovals,
         UserSettings,
+        AdminSettings,
+        Calendar,
+        CalendarHoliday,
+        SlaDefinition,
+        SlaInstance,
+        SlaPause,
+        SlaRule,
+        SlaEscalationDefinition,
+        SlaEscalationInstance,
       ],
       synchronize: true,
     }),
@@ -75,7 +95,17 @@ import { SettingsModule } from './modules/settings.module';
       TicketsComments,
       TicketsApprovals,
       UserSettings,
+      AdminSettings,
+      Calendar,
+      CalendarHoliday,
+      SlaDefinition,
+      SlaInstance,
+      SlaPause,
+      SlaRule,
+      SlaEscalationDefinition,
+      SlaEscalationInstance,
     ]),
+    ScheduleModule.forRoot(),
     DevicesModule,
     UsersModule,
     FormsModule,
@@ -86,6 +116,7 @@ import { SettingsModule } from './modules/settings.module';
     AuthModule,
     TicketsModule,
     SettingsModule,
+    SlaModule,
   ],
   controllers: [],
   providers: [],

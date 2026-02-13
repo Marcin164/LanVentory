@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Patch, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthGuard } from 'src/guards/authGuard.guard';
 import { SettingsService } from 'src/services/settings.service';
 
@@ -8,12 +16,18 @@ export class SettingsController {
   constructor(private readonly settingsService: SettingsService) {}
 
   @Get()
-  getUsersSettings() {
-    return this.settingsService.getUserSettings();
+  getUsersSettings(@Request() req: any) {
+    console.log('New user');
+    console.log(req.user);
+    return this.settingsService.getUserSettings(req.user.id);
   }
 
-  @Patch(':userId')
-  updateUserSettings(@Param('userId') userId: string, @Body() dto: any) {
-    return this.settingsService.updateUserSettings(userId, dto);
+  @Patch()
+  updateUserSettings(@Request() req: any, @Body() dto: any) {
+    console.log(dto);
+    return this.settingsService.updateUserSettings(
+      req.user.properties.metadata.id,
+      dto,
+    );
   }
 }

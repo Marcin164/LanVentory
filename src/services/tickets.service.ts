@@ -10,6 +10,7 @@ import {
 import { TicketsGateway } from 'src/gateways/tickets.gateway';
 import { TicketsComments } from 'src/entities/ticketsComments.entity';
 import { TicketsApprovals } from 'src/entities/ticketsApprovals.entity';
+import { SlaEngineService } from './slaEngine.service';
 
 @Injectable()
 export class TicketsService {
@@ -24,7 +25,9 @@ export class TicketsService {
     private ticketsApprovalsRepository: Repository<TicketsApprovals>,
 
     private readonly ticketsGateway: TicketsGateway,
+    private readonly slaEngine: SlaEngineService,
   ) {}
+
   async generateTicketNumber(): Promise<number> {
     const result = await this.ticketsRepository.query(
       `SELECT nextval('ticket_number_seq')`,
@@ -33,6 +36,75 @@ export class TicketsService {
     return Number(result[0].nextval);
   }
 
+  /*
+   * ======================
+   * CREATE TICKET + SLA START
+   * ======================
+   */
+  async createTicket(dto: CreateTicketDto) {
+    const ticket = this.ticketsRepository.create({
+      ...dto,
+      number: await this.generateTicketNumber(),
+    });
+
+    const saved = await this.ticketsRepository.save(ticket);
+
+    // 🔥 START SLA
+    await this.slaEngine.createForTicket(saved);
+
+    return saved;
+  }
+
+  /*
+   * ======================
+   * UPDATE TICKET + SLA LIFECYCLE
+   * ======================
+   */
+  async updateTicket(id: string, dto: UpdateTicketDto) {
+    const ticket = await this.ticketsRepository.findOneBy({ id });
+
+    if (!ticket) throw new Error('Ticket not found');
+
+    const previousState = ticket.state;
+    const previousPriority = ticket.priority;
+
+    // update pól
+    Object.assign(ticket, dto);
+
+    // auto resolve detection
+    const isResolving = !ticket.resolvedAt && dto.resolvedAt !== undefined;
+
+    const updated = await this.ticketsRepository.save(ticket);
+
+    /*
+     * ===== SLA: STATE CHANGE =====
+     */
+    if (dto.state && dto.state !== previousState) {
+      await this.slaEngine.handleStateChange(updated, previousState);
+    }
+
+    /*
+     * ===== SLA: PRIORITY CHANGE =====
+     */
+    if (dto.priority && dto.priority !== previousPriority) {
+      await this.slaEngine.handlePriorityChange(updated);
+    }
+
+    /*
+     * ===== SLA: RESOLVE =====
+     */
+    if (isResolving || dto.state === 'Resolved') {
+      await this.slaEngine.handleResolved(updated);
+    }
+
+    return updated;
+  }
+
+  /*
+   * ======================
+   * READ METHODS (bez zmian)
+   * ======================
+   */
   async getTickets(query: GetTicketsQueryDto) {
     const { page = 1, limit = 30, search, ...filters } = query;
 
@@ -90,19 +162,12 @@ export class TicketsService {
       .getOne();
   }
 
-  async updateTicket(id: string, dto: UpdateTicketDto) {
-    return await this.ticketsRepository.update(id, dto);
-  }
-
-  async createTicket(dto: CreateTicketDto) {
-    const ticket = this.ticketsRepository.create({
-      ...dto,
-      number: await this.generateTicketNumber(),
-    });
-
-    return this.ticketsRepository.save(ticket);
-  }
-
+  /*
+   * ======================
+   * COMMENTS / APPROVALS
+   * (bez SLA)
+   * ======================
+   */
   async createComment(ticketId: any, authorId: any, dto: any) {
     const comment = this.ticketsCommentsRepository.create({
       ticketId,
@@ -112,8 +177,6 @@ export class TicketsService {
     });
 
     const saved = await this.ticketsCommentsRepository.save(comment);
-
-    console.log('[COMMENT SAVED]', saved.id, saved.content);
 
     this.ticketsGateway.emitNewComment(dto.ticketId, saved);
 
@@ -128,9 +191,7 @@ export class TicketsService {
       createdAt: new Date(),
     });
 
-    const saved = await this.ticketsApprovalsRepository.save(approval);
-
-    return saved;
+    return this.ticketsApprovalsRepository.save(approval);
   }
 
   async updateApproval(id: any, dto: any) {
