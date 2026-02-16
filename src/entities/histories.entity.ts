@@ -5,7 +5,6 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
-  ManyToMany,
 } from 'typeorm';
 import { HistoryApprovers } from './historyApprovers.entity';
 import { HistoryComponents } from './historyComponents.entity';

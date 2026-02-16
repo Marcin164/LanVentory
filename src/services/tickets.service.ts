@@ -61,43 +61,33 @@ export class TicketsService {
    * ======================
    */
   async updateTicket(id: string, dto: UpdateTicketDto) {
-    const ticket = await this.ticketsRepository.findOneBy({ id });
+    return this.ticketsRepository.manager.transaction(async (manager: any) => {
+      const ticket = await manager.findOne(Tickets, {
+        where: { id },
+      });
 
-    if (!ticket) throw new Error('Ticket not found');
+      if (!ticket) throw new Error('Ticket not found');
 
-    const previousState = ticket.state;
-    const previousPriority = ticket.priority;
+      const previousState = ticket.state;
+      const previousPriority = ticket.priority;
 
-    // update pól
-    Object.assign(ticket, dto);
+      Object.assign(ticket, dto);
 
-    // auto resolve detection
-    const isResolving = !ticket.resolvedAt && dto.resolvedAt !== undefined;
+      const updated = await manager.save(ticket);
 
-    const updated = await this.ticketsRepository.save(ticket);
+      // przekazujemy manager do SLA Engine
+      await this.slaEngine.handleStateChange(updated, previousState, manager);
 
-    /*
-     * ===== SLA: STATE CHANGE =====
-     */
-    if (dto.state && dto.state !== previousState) {
-      await this.slaEngine.handleStateChange(updated, previousState);
-    }
+      if (dto.priority && dto.priority !== previousPriority) {
+        await this.slaEngine.handlePriorityChange(updated, manager);
+      }
 
-    /*
-     * ===== SLA: PRIORITY CHANGE =====
-     */
-    if (dto.priority && dto.priority !== previousPriority) {
-      await this.slaEngine.handlePriorityChange(updated);
-    }
+      if (dto.state === 'Resolved') {
+        await this.slaEngine.handleResolved(updated, manager);
+      }
 
-    /*
-     * ===== SLA: RESOLVE =====
-     */
-    if (isResolving || dto.state === 'Resolved') {
-      await this.slaEngine.handleResolved(updated);
-    }
-
-    return updated;
+      return updated;
+    });
   }
 
   /*

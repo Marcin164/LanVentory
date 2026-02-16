@@ -17,14 +17,11 @@ export class SettingsController {
 
   @Get()
   getUsersSettings(@Request() req: any) {
-    console.log('New user');
-    console.log(req.user);
     return this.settingsService.getUserSettings(req.user.id);
   }
 
   @Patch()
   updateUserSettings(@Request() req: any, @Body() dto: any) {
-    console.log(dto);
     return this.settingsService.updateUserSettings(
       req.user.properties.metadata.id,
       dto,

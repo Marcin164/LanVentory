@@ -12,12 +12,18 @@ export class CalendarHoliday {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'date' })
-  holidayDate: string;
+  @Column()
+  calendarId: string;
 
-  @ManyToOne(() => Calendar, (calendar) => calendar.holidays, {
+  @ManyToOne(() => Calendar, (c) => c.holidays, {
     onDelete: 'CASCADE',
   })
-  @JoinColumn({ name: 'calendar_id' })
+  @JoinColumn({ name: 'calendarId' })
   calendar: Calendar;
+
+  @Column({ type: 'date' })
+  date: Date;
+
+  @Column()
+  description: string;
 }

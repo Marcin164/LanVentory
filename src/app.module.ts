@@ -38,6 +38,7 @@ import { SlaModule } from './modules/sla.module';
 import { SlaEscalationInstance } from './entities/slaEscalationInstance.entity';
 import { SlaEscalationDefinition } from './entities/slaEscalationDefinition.entity';
 import { ScheduleModule } from '@nestjs/schedule';
+import { SystemAuditLog } from './entities/systemAuditLog.entity';
 
 @Module({
   imports: [
@@ -77,6 +78,7 @@ import { ScheduleModule } from '@nestjs/schedule';
         SlaRule,
         SlaEscalationDefinition,
         SlaEscalationInstance,
+        SystemAuditLog,
       ],
       synchronize: true,
     }),
@@ -104,6 +106,7 @@ import { ScheduleModule } from '@nestjs/schedule';
       SlaRule,
       SlaEscalationDefinition,
       SlaEscalationInstance,
+      SystemAuditLog,
     ]),
     ScheduleModule.forRoot(),
     DevicesModule,

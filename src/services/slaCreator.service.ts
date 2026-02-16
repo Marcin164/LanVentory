@@ -6,23 +6,32 @@ import { SlaRule } from 'src/entities/slaRule.entity';
 import { Injectable } from '@nestjs/common';
 import { EscalationCreatorService } from './escalationCreator.service';
 import { InjectRepository } from '@nestjs/typeorm';
+import { AuditService } from './audit.service';
 
 @Injectable()
 export class SlaCreatorService {
   constructor(
     @InjectRepository(SlaRule)
-    private slaRuleRepo: Repository<SlaRule>,
+    private readonly slaRuleRepo: Repository<SlaRule>,
 
     @InjectRepository(SlaInstance)
-    private slaInstanceRepo: Repository<SlaInstance>,
+    private readonly slaInstanceRepo: Repository<SlaInstance>,
 
-    private businessTime: BusinessTimeService,
-
+    private readonly businessTime: BusinessTimeService,
     private readonly escalationCreator: EscalationCreatorService,
+    private readonly audit: AuditService,
   ) {}
 
-  async createInstances(ticket: Tickets) {
-    const rules = await this.slaRuleRepo.find({
+  async createInstances(ticket: Tickets, manager?: any) {
+    const ruleRepo = manager
+      ? manager.getRepository(SlaRule)
+      : this.slaRuleRepo;
+
+    const instanceRepo = manager
+      ? manager.getRepository(SlaInstance)
+      : this.slaInstanceRepo;
+
+    const rules = await ruleRepo.find({
       where: { priority: ticket.priority },
       relations: ['slaDefinition', 'slaDefinition.calendar'],
     });
@@ -36,18 +45,41 @@ export class SlaCreatorService {
         def.calendar,
       );
 
-      const savedInstance = await this.slaInstanceRepo.save({
+      const savedInstance = await instanceRepo.save({
         ticketId: ticket.id,
         slaDefinition: def,
         startAt: ticket.createdAt,
         dueAt,
       });
 
-      await this.escalationCreator.createForSlaInstance(savedInstance);
+      await this.audit.log(
+        'SLA_INSTANCE',
+        savedInstance.id,
+        'SLA_CREATED',
+        {
+          ticketId: ticket.id,
+          targetMinutes: def.targetMinutes,
+        },
+        manager,
+      );
+
+      await this.escalationCreator.createForSlaInstance(savedInstance, manager);
     }
   }
 
-  async deleteInstancesForTicket(ticketId: string) {
-    await this.slaInstanceRepo.delete({ ticketId });
+  async deleteInstancesForTicket(ticketId: string, manager?: any) {
+    const repo = manager
+      ? manager.getRepository(SlaInstance)
+      : this.slaInstanceRepo;
+
+    await repo.delete({ ticketId });
+
+    await this.audit.log(
+      'SLA_INSTANCE',
+      ticketId,
+      'SLA_RECREATED_AFTER_PRIORITY_CHANGE',
+      {},
+      manager,
+    );
   }
 }

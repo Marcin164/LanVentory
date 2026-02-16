@@ -10,22 +10,28 @@ import { SlaInstance } from 'src/entities/slaInstance.entity';
 export class EscalationCreatorService {
   constructor(
     @InjectRepository(SlaEscalationDefinition)
-    private escalationDefRepo: Repository<SlaEscalationDefinition>,
+    private readonly escalationDefRepo: Repository<SlaEscalationDefinition>,
 
     @InjectRepository(SlaEscalationInstance)
-    private escalationInstRepo: Repository<SlaEscalationInstance>,
+    private readonly escalationInstRepo: Repository<SlaEscalationInstance>,
 
     private readonly businessTime: BusinessTimeService,
   ) {}
 
-  async createForSlaInstance(slaInstance: SlaInstance) {
-    const definitions = await this.escalationDefRepo.find({
+  async createForSlaInstance(slaInstance: SlaInstance, manager?: any) {
+    const defRepo = manager
+      ? manager.getRepository(SlaEscalationDefinition)
+      : this.escalationDefRepo;
+
+    const instRepo = manager
+      ? manager.getRepository(SlaEscalationInstance)
+      : this.escalationInstRepo;
+
+    const definitions = await defRepo.find({
       where: {
         slaDefinition: { id: slaInstance.slaDefinition.id },
       },
     });
-
-    if (!definitions.length) return;
 
     for (const def of definitions) {
       const triggerMinutes =
@@ -37,7 +43,7 @@ export class EscalationCreatorService {
         slaInstance.slaDefinition.calendar,
       );
 
-      await this.escalationInstRepo.save({
+      await instRepo.save({
         slaInstance,
         definition: def,
         triggerAt,

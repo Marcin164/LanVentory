@@ -1,37 +1,65 @@
 import { Injectable } from '@nestjs/common';
-import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SlaEscalationInstance } from 'src/entities/slaEscalationInstance.entity';
+import { Repository } from 'typeorm';
 import { EscalationActionService } from './escalationAction.service';
-
+import { AuditService } from './audit.service';
 @Injectable()
 export class EscalationEngineService {
   constructor(
     @InjectRepository(SlaEscalationInstance)
-    private escalationRepo: Repository<SlaEscalationInstance>,
+    private readonly repo: Repository<SlaEscalationInstance>,
 
     private readonly actionService: EscalationActionService,
+    private readonly audit: AuditService,
   ) {}
 
   async processDueEscalations() {
-    const escalations = await this.escalationRepo
-      .createQueryBuilder('e')
-      .leftJoinAndSelect('e.definition', 'definition')
-      .leftJoinAndSelect('e.slaInstance', 'slaInstance')
-      .leftJoinAndSelect('slaInstance.slaDefinition', 'slaDefinition')
-      .leftJoinAndSelect('slaDefinition.calendar', 'calendar')
-      .where('e.triggered = false')
-      .andWhere('e.triggerAt <= now()')
-      .andWhere('slaInstance.paused = false')
-      .getMany();
+    const queryRunner = this.repo.manager.connection.createQueryRunner();
 
-    for (const esc of escalations) {
-      await this.actionService.execute(esc);
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
 
-      esc.triggered = true;
-      esc.triggeredAt = new Date();
+    try {
+      const escalations = await queryRunner.manager
+        .createQueryBuilder(SlaEscalationInstance, 'e')
+        .innerJoinAndSelect('e.definition', 'definition')
+        .innerJoinAndSelect('e.slaInstance', 'slaInstance')
+        .where('e.triggered = false')
+        .andWhere('e.triggerAt <= now()')
+        .andWhere('slaInstance.paused = false')
+        .setLock('pessimistic_write')
+        .limit(20)
+        .getMany();
 
-      await this.escalationRepo.save(esc);
+      for (const esc of escalations) {
+        // wykonanie akcji
+        await this.actionService.execute(esc);
+
+        // AUDYT
+        await this.audit.log(
+          'ESCALATION_INSTANCE',
+          esc.id,
+          'ESCALATION_TRIGGERED',
+          {
+            ticketId: esc.slaInstance.ticketId,
+            actionType: esc.definition.actionType,
+          },
+          queryRunner.manager,
+        );
+
+        esc.triggered = true;
+        esc.triggeredAt = new Date();
+
+        await queryRunner.manager.save(esc);
+      }
+
+      await queryRunner.commitTransaction();
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      throw err;
+    } finally {
+      await queryRunner.release();
     }
   }
 }

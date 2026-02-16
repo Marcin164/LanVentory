@@ -2,31 +2,40 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SlaInstance } from 'src/entities/slaInstance.entity';
 import { Repository } from 'typeorm';
+import { AuditService } from './audit.service';
 
 @Injectable()
 export class SlaBreachService {
   constructor(
     @InjectRepository(SlaInstance)
-    private repo: Repository<SlaInstance>,
+    private readonly repo: Repository<SlaInstance>,
+
+    private readonly audit: AuditService,
   ) {}
 
-  async detectBreaches() {
-    await this.repo
-      .createQueryBuilder()
-      .update()
-      .set({ breached: true })
-      .where('breached = false')
-      .andWhere('paused = false')
-      .andWhere('due_at < now()')
-      .execute();
-  }
+  async finishSla(ticketId: string, manager?: any) {
+    const repository = manager ? manager.getRepository(SlaInstance) : this.repo;
 
-  async finishSla(ticketId: string) {
-    const instances = await this.repo.find({ where: { ticketId } });
+    const instances = await repository.find({
+      where: { ticketId },
+    });
 
     for (const inst of instances) {
       inst.breached = new Date() > inst.dueAt;
-      await this.repo.save(inst);
+      await repository.save(inst);
+
+      if (inst.breached) {
+        await this.audit.log(
+          'SLA_INSTANCE',
+          inst.id,
+          'SLA_BREACHED',
+          {
+            ticketId,
+            dueAt: inst.dueAt,
+          },
+          manager,
+        );
+      }
     }
   }
 }

@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { EntityManager } from 'typeorm';
 import { Tickets, TicketState } from 'src/entities/tickets.entity';
 import { SlaCreatorService } from './slaCreator.service';
 import { SlaPauseService } from './slaPause.service';
@@ -12,21 +13,47 @@ export class SlaEngineService {
     private readonly breachService: SlaBreachService,
   ) {}
 
-  async createForTicket(ticket: Tickets) {
-    await this.creator.createInstances(ticket);
+  /*
+   * ========================
+   * CREATE SLA
+   * ========================
+   */
+  async createForTicket(ticket: Tickets, manager?: EntityManager) {
+    await this.creator.createInstances(ticket, manager);
   }
 
-  async handleStateChange(ticket: Tickets, prevState: TicketState) {
-    await this.pauseService.handleStateChange(ticket, prevState);
+  /*
+   * ========================
+   * STATE CHANGE
+   * ========================
+   */
+  async handleStateChange(
+    ticket: Tickets,
+    prevState: TicketState,
+    manager?: EntityManager,
+  ) {
+    await this.pauseService.handleStateChange(ticket, prevState, manager);
   }
 
-  async handleResolved(ticket: Tickets) {
-    await this.breachService.finishSla(ticket.id);
+  /*
+   * ========================
+   * RESOLVE
+   * ========================
+   */
+  async handleResolved(ticket: Tickets, manager?: EntityManager) {
+    await this.breachService.finishSla(ticket.id, manager);
   }
 
-  async handlePriorityChange(ticket: Tickets) {
-    await this.creator.deleteInstancesForTicket(ticket.id);
+  /*
+   * ========================
+   * PRIORITY CHANGE
+   * ========================
+   */
+  async handlePriorityChange(ticket: Tickets, manager?: EntityManager) {
+    // usuń stare SLA instancje
+    await this.creator.deleteInstancesForTicket(ticket.id, manager);
 
-    await this.creator.createInstances(ticket);
+    // utwórz nowe w tej samej transakcji
+    await this.creator.createInstances(ticket, manager);
   }
 }

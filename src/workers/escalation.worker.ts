@@ -6,7 +6,7 @@ import { Cron } from '@nestjs/schedule';
 export class EscalationWorker {
   constructor(private readonly engine: EscalationEngineService) {}
 
-  @Cron('* * * * *')
+  @Cron('* * * * *') // co minutę
   async handle() {
     await this.engine.processDueEscalations();
   }

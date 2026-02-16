@@ -115,7 +115,7 @@ export class BusinessTimeService {
     // sprawdz święta
     const dateStr = date.toISOString().slice(0, 10);
 
-    return !calendar.holidays?.some((h) => h.holidayDate === dateStr);
+    return !calendar.holidays?.some((h: any) => h.holidayDate === dateStr);
   }
 
   private getWorkStart(date: Date, calendar: Calendar) {
