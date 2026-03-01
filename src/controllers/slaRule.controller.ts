@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Post,
+  Patch,
   Delete,
   Param,
   Body,
@@ -23,6 +24,11 @@ export class SlaRuleController {
   @Post()
   create(@Body() dto: any) {
     return this.service.create(dto);
+  }
+
+  @Patch(':id')
+  update(@Param('id') id: string, @Body() dto: any) {
+    return this.service.update(id, dto);
   }
 
   @Delete(':id')

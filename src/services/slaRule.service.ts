@@ -35,9 +35,44 @@ export class SlaRuleService {
     await this.ruleRepo.delete({ priority: dto.priority });
 
     const rule = this.ruleRepo.create({
-      priority: dto.priority,
+      ...dto,
       slaDefinition: sla,
     });
+
+    return this.ruleRepo.save(rule);
+  }
+
+  async update(
+    id: string,
+    dto: {
+      priority?: TicketPriority;
+      type: string;
+      slaDefinitionId?: string;
+    },
+  ) {
+    const rule: any = await this.ruleRepo.findOne({
+      where: { id },
+      relations: ['slaDefinition'],
+    });
+
+    if (!rule) {
+      throw new NotFoundException('SLA rule not found');
+    }
+
+    if (dto.slaDefinitionId) {
+      const sla = await this.slaRepo.findOne({
+        where: { id: dto.slaDefinitionId },
+      });
+
+      if (!sla) {
+        throw new NotFoundException('SLA definition not found');
+      }
+
+      rule.slaDefinition = sla;
+    }
+
+    if (dto.priority !== undefined) rule.priority = dto.priority;
+    if (dto.type !== undefined) rule.type = dto.type;
 
     return this.ruleRepo.save(rule);
   }

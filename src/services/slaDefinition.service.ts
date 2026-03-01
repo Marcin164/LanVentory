@@ -43,14 +43,7 @@ export class SlaDefinitionService {
     return this.slaRepo.save(sla);
   }
 
-  async update(
-    id: string,
-    dto: Partial<{
-      name: string;
-      targetMinutes: number;
-      calendarId: string;
-    }>,
-  ) {
+  async update(id: string, dto: any) {
     const sla = await this.slaRepo.findOne({
       where: { id },
       relations: ['calendar'],
@@ -74,6 +67,7 @@ export class SlaDefinitionService {
 
     if (dto.name !== undefined) sla.name = dto.name;
     if (dto.targetMinutes !== undefined) sla.targetMinutes = dto.targetMinutes;
+    if (dto.type !== undefined) sla.type = dto.type;
 
     return this.slaRepo.save(sla);
   }

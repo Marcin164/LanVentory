@@ -7,17 +7,29 @@ import {
 } from 'typeorm';
 import { SlaDefinition } from './slaDefinition.entity';
 
-@Entity('sla_rule')
+export enum TicketType {
+  INCIDENT = 'Incident',
+  SERVICE = 'Service',
+}
+
+@Entity()
 export class SlaRule {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column()
-  priority: string; // np. P1, P2
+  priority: string;
+
+  @Column({
+    type: 'enum',
+    enum: TicketType,
+    nullable: true,
+  })
+  ticketType: TicketType | null; // null = any
 
   @ManyToOne(() => SlaDefinition, (sla: any) => sla.rules, {
     onDelete: 'CASCADE',
   })
-  @JoinColumn({ name: 'sla_definition_id' })
+  @JoinColumn({ name: 'definitionId' })
   slaDefinition: SlaDefinition;
 }

@@ -27,6 +27,7 @@ export class SlaDefinition {
   @Column({
     type: 'enum',
     enum: SlaType,
+    nullable: true,
   })
   type: SlaType;
 
@@ -34,7 +35,7 @@ export class SlaDefinition {
   targetMinutes: number;
 
   @ManyToOne(() => Calendar, (calendar) => calendar.slaDefinitions)
-  @JoinColumn({ name: 'calendar_id' })
+  @JoinColumn({ name: 'calendarId' })
   calendar: Calendar;
 
   @OneToMany(() => SlaRule, (rule: any) => rule.slaDefinition)

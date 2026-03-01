@@ -106,7 +106,7 @@ export class BusinessTimeService {
     return this.getWorkStart(next, calendar);
   }
 
-  private async isWorkingDay(date: Date, calendar: Calendar) {
+  private async isWorkingDay(date: Date, calendar: any) {
     const day = getDay(date); // 0=Sunday
 
     // workingDays = "0111110"

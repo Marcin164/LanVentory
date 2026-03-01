@@ -13,14 +13,14 @@ export class Calendar {
   @Column()
   timezone: string; // np. Europe/Warsaw
 
-  @Column({ type: 'time' })
-  workStart: string; // '08:00:00'
+  @Column({ type: 'time', nullable: true })
+  workStart: string;
 
-  @Column({ type: 'time' })
-  workEnd: string; // '16:00:00'
+  @Column({ type: 'time', nullable: true })
+  workEnd: string;
 
-  @Column({ type: 'varchar', length: 7 })
-  workingDays: string;
+  @Column({ type: 'int', array: true })
+  workingDays: number[];
 
   @OneToMany(() => CalendarHoliday, (h: any) => h.calendar)
   holidays: CalendarHoliday[];
