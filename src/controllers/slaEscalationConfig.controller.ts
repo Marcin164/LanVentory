@@ -16,17 +16,19 @@ import { EscalationConfigService } from 'src/services/escalationConfig.service';
 export class SlaEscalationConfigController {
   constructor(private readonly service: EscalationConfigService) {}
 
-  @Get(':slaDefinitionId')
-  async getForSla(@Param('slaDefinitionId') slaDefinitionId: string) {
-    return this.service.getForSla(slaDefinitionId);
+  @Get()
+  async getAll() {
+    return this.service.getAll();
   }
 
-  @Post(':slaDefinitionId')
-  async create(
-    @Param('slaDefinitionId') slaDefinitionId: string,
-    @Body() dto: any,
-  ) {
-    return this.service.create(slaDefinitionId, dto);
+  @Get('definitions')
+  async getEscalationsGroupedBySla() {
+    return this.service.getEscalationsGroupedBySla();
+  }
+
+  @Post()
+  async create(@Body() dto: any) {
+    return this.service.create(dto);
   }
 
   @Patch(':id')

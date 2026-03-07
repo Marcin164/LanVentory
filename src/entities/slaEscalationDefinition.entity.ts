@@ -20,10 +20,13 @@ export class SlaEscalationDefinition {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @Column()
+  slaDefinitionId: string;
+
   @ManyToOne(() => SlaDefinition, (sla: any) => sla.escalations, {
     onDelete: 'CASCADE',
   })
-  @JoinColumn({ name: 'sla_definition_id' })
+  @JoinColumn({ name: 'slaDefinitionId' })
   slaDefinition: SlaDefinition;
 
   @Column()

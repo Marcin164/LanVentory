@@ -57,7 +57,6 @@ export class CalendarService {
     calendarId: string,
     dto: { date: string; description: string },
   ) {
-    console.log(dto);
     const calendar = await this.calendarRepo.findOne({
       where: { id: calendarId },
     });

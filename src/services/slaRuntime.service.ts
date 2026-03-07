@@ -26,55 +26,47 @@ export class SlaRuntimeService {
 
     const now = new Date();
 
-    const breached = instances.some((i) => i.breached);
-    const paused = instances.some((i) => i.paused);
+    const result = instances.map((instance) => {
+      const totalMinutes = instance.slaDefinition.targetMinutes;
 
-    const earliestDue = instances.reduce(
-      (earliest, cur) => (cur.dueAt < earliest ? cur.dueAt : earliest),
-      instances[0].dueAt,
-    );
+      const remainingMinutes = Math.max(
+        Math.ceil((instance.dueAt.getTime() - now.getTime()) / 60000),
+        0,
+      );
 
-    const totalMinutes = instances.reduce(
-      (sum, i) => sum + i.slaDefinition.targetMinutes,
-      0,
-    );
+      const usedMinutes = Math.max(totalMinutes - remainingMinutes, 0);
 
-    const remainingMinutes = Math.max(
-      Math.ceil((earliestDue.getTime() - now.getTime()) / 60000),
-      0,
-    );
+      const usedPercentage = Math.min(
+        Math.round((usedMinutes / totalMinutes) * 100),
+        100,
+      );
 
-    const usedPercentage = Math.min(
-      Math.round(((totalMinutes - remainingMinutes) / totalMinutes) * 100),
-      100,
-    );
+      const status = instance.breached
+        ? 'BREACHED'
+        : instance.paused
+          ? 'PAUSED'
+          : 'ACTIVE';
 
-    const escalationsTriggered = await this.escalationRepo.count({
-      where: {
-        triggered: true,
-        slaInstance: {
-          ticketId,
-        },
-      },
-      relations: ['slaInstance'],
+      return {
+        id: instance.id,
+
+        type: instance.slaDefinition.type,
+        name: instance.slaDefinition.name,
+
+        status,
+        paused: instance.paused,
+        breached: instance.breached,
+
+        dueAt: instance.dueAt,
+        remainingMinutes,
+        usedPercentage,
+
+        targetMinutes: totalMinutes,
+      };
     });
 
     return {
-      status: breached ? 'BREACHED' : paused ? 'PAUSED' : 'ACTIVE',
-
-      paused,
-      breached,
-
-      dueAt: earliestDue,
-      remainingMinutes,
-      usedPercentage,
-
-      escalationsTriggered,
-
-      slaDefinitions: instances.map((i) => ({
-        name: i.slaDefinition.name,
-        targetMinutes: i.slaDefinition.targetMinutes,
-      })),
+      instances: result,
     };
   }
 }

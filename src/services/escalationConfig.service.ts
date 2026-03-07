@@ -14,25 +14,64 @@ export class EscalationConfigService {
     private slaDefRepo: Repository<SlaDefinition>,
   ) {}
 
-  async getForSla(slaDefinitionId: string) {
+  async getAll() {
     return this.escalationRepo.find({
-      where: {
-        slaDefinition: { id: slaDefinitionId },
-      },
       order: { triggerPercentage: 'ASC' },
     });
   }
 
-  async create(slaDefinitionId: string, dto: any) {
+  async getEscalationsGroupedBySla() {
+    const slas = await this.escalationRepo
+      .createQueryBuilder('esc')
+      .leftJoinAndSelect('esc.slaDefinition', 'sla')
+      .select([
+        'esc.id',
+        'esc.triggerPercentage',
+        'esc.actionType',
+        'esc.actionConfig',
+        'esc.createdAt',
+        'sla.id',
+        'sla.name',
+      ])
+      .getMany();
+
+    const grouped = new Map<string, any>();
+
+    for (const esc of slas) {
+      const slaId = esc.slaDefinition.id;
+      const slaName = esc.slaDefinition.name;
+
+      if (!grouped.has(slaId)) {
+        grouped.set(slaId, {
+          slaDefinitionId: slaId,
+          slaDefinitionName: slaName,
+          escalations: [],
+        });
+      }
+
+      const group = grouped.get(slaId)!;
+
+      group.escalations.push({
+        id: esc.id,
+        triggerPercentage: esc.triggerPercentage,
+        actionType: esc.actionType,
+        actionConfig: esc.actionConfig,
+        createdAt: esc.createdAt,
+      });
+    }
+
+    return Array.from(grouped.values());
+  }
+
+  async create(dto: any) {
     const slaDefinition = await this.slaDefRepo.findOneBy({
-      id: slaDefinitionId,
+      id: dto.definition,
     });
 
     if (!slaDefinition) throw new NotFoundException('SLA definition not found');
 
     const escalation = this.escalationRepo.create({
       ...dto,
-      slaDefinition,
     });
 
     return this.escalationRepo.save(escalation);

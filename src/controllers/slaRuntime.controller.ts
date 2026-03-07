@@ -13,8 +13,8 @@ export class SlaRuntimeController {
 
   // 🔥 GŁÓWNY ENDPOINT DLA FRONTENDU
   @Get('ticket/:ticketId')
-  getRuntime(@Param('ticketId') ticketId: string) {
-    return this.runtime.getForTicket(ticketId);
+  async getRuntime(@Param('ticketId') ticketId: string) {
+    return await this.runtime.getForTicket(ticketId);
   }
 
   // ⏸ MANUAL PAUSE
