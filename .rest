@@ -55,3 +55,8 @@ Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6ImU1YWRmOGM1LW
 
 GET http://localhost:3000/devices/options
 Content-Type: application/json
+
+###
+
+GET http://localhost:3000/reports?type=users-by-department
+Content-Type: application/json

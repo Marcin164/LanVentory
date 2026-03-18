@@ -59,6 +59,9 @@ export class Users {
   @Column({ nullable: true, default: false })
   isApprover: boolean;
 
+  @Column({ nullable: true, default: false })
+  isAdmin: boolean;
+
   @Column({ type: 'jsonb', nullable: true })
   memberOf: Record<string, any>;
 
