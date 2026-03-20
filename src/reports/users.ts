@@ -2,7 +2,7 @@
 
 export async function usersByDepartmentReport({ db }) {
   const result = await db.query(`
-    SELECT department as label, COUNT(*) as value
+    SELECT department as label, COUNT(*)::integer as value
     FROM users
     GROUP BY department
     ORDER BY value DESC
@@ -32,11 +32,12 @@ export async function usersByTitleReport({ db }) {
 
 export async function newUsersOverTimeReport({ db }) {
   const result = await db.query(`
-    SELECT DATE_TRUNC('month', whenCreated::timestamp) as label,
-           COUNT(*) as value
-    FROM users
-    GROUP BY label
-    ORDER BY label
+SELECT 
+  TO_CHAR("whenCreated", 'YYYY-MM') AS label,
+  COUNT(*)::integer AS value
+FROM users
+GROUP BY label
+ORDER BY label;
   `);
   return result;
 }
@@ -56,13 +57,27 @@ export async function inactiveUsersReport({ db }) {
   return result;
 }
 
-export async function usersWithoutDeviceReport({ db }) {
+export async function usersDeviceDistributionReport({ db }) {
   const result = await db.query(`
-    SELECT 'Without device' as label, COUNT(*) as value
-    FROM users u
-    LEFT JOIN devices d ON d."userId" = u.id
-    WHERE d.id IS NULL
+    SELECT
+      CASE
+        WHEN device_count = 0 THEN 'No device'
+        WHEN device_count = 1 THEN 'One device'
+        ELSE 'Multiple devices'
+      END as name,
+      COUNT(*)::int as value
+    FROM (
+      SELECT
+        u.id,
+        COUNT(d.id) as device_count
+      FROM users u
+      LEFT JOIN devices d ON d."userId" = u.id
+      GROUP BY u.id
+    ) as sub
+    GROUP BY name
+    ORDER BY value DESC
   `);
+
   return result;
 }
 
@@ -113,16 +128,15 @@ export async function usersPasswordAgeReport({ db }) {
   return result;
 }
 
-export async function usersAdminDistributionReport({ db }) {
+export async function adminsByDepartmentReport({ db }) {
   const result = await db.query(`
     SELECT
-      CASE
-        WHEN "isAdmin" = true THEN 'Admins'
-        ELSE 'Non-Admins'
-      END as label,
-      COUNT(*) as value
+      department as label,
+      COUNT(*)::int as value
     FROM users
-    GROUP BY label
+    WHERE "isAdmin" = true
+    GROUP BY department
+    ORDER BY value DESC
   `);
 
   return result;

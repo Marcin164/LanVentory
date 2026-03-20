@@ -10,12 +10,12 @@ export const REPORT_REGISTRY = {
   'users-by-title': users.usersByTitleReport,
   'users-new-over-time': users.newUsersOverTimeReport,
   'users-inactive': users.inactiveUsersReport,
-  'users-without-device': users.usersWithoutDeviceReport,
+  'users-without-device': users.usersDeviceDistributionReport,
   'users-multiple-devices': users.usersWithMultipleDevicesReport,
   'users-by-manager': users.usersByManagerReport,
   'users-by-company': users.usersByCompanyReport,
   'users-password-age': users.usersPasswordAgeReport,
-  'users-with-admin': users.usersAdminDistributionReport,
+  'users-with-admin': users.adminsByDepartmentReport,
 
   // DEVICES
   'devices-by-type': devices.devicesByTypeReport,

@@ -66,8 +66,8 @@ export class Users {
   memberOf: Record<string, any>;
 
   @Column({ nullable: true })
-  whenCreated: string;
+  whenCreated: Date;
 
   @Column({ nullable: true })
-  pwdLastSet: string;
+  pwdLastSet: Date;
 }
