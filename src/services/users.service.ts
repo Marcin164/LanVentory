@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Users } from 'src/entities/users.entity';
@@ -38,6 +38,24 @@ export class UsersService {
     });
 
     return await this.usersRepository.insert(mappedUsers);
+  }
+
+  async update(dto: any, id: string): Promise<any> {
+    const user = await this.usersRepository.preload({
+      id,
+      ...dto,
+    });
+
+    if (!user) {
+      throw new NotFoundException(`User with id ${id} not found`);
+    }
+
+    return this.usersRepository.save(user);
+  }
+
+  async delete(id: string): Promise<any> {
+    console.log(id);
+    return await this.usersRepository.delete({ id });
   }
 
   async insertManyUsersAD(usersData: Partial<Users>[]): Promise<any> {

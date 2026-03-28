@@ -29,12 +29,13 @@ export class TicketsComments {
   @JoinColumn({ name: 'ticketId' })
   ticket: Tickets;
 
-  @Column()
+  @Column({ nullable: true })
   authorId: string;
 
   @ManyToOne(() => Users, {
     eager: false,
-    nullable: false,
+    nullable: true,
+    onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'authorId' })
   author: Users;

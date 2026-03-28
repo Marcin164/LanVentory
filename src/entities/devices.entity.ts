@@ -22,7 +22,7 @@ export class Devices {
   @Column({ nullable: true })
   userId: string;
 
-  @ManyToOne(() => Users, { nullable: true })
+  @ManyToOne(() => Users, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'userId' })
   user: Users;
 

@@ -99,12 +99,13 @@ export class Tickets {
   })
   urgency: TicketUrgency;
 
-  @Column()
+  @Column({ nullable: true })
   requesterId: string;
 
   @ManyToOne(() => Users, {
     eager: false,
-    nullable: false,
+    nullable: true,
+    onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'requesterId' })
   requester: Users;

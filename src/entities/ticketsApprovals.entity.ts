@@ -34,7 +34,8 @@ export class TicketsApprovals {
 
   @ManyToOne(() => Users, {
     eager: false,
-    nullable: false,
+    nullable: true,
+    onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'approverId' })
   approver: Users;

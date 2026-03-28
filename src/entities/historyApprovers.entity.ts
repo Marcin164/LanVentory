@@ -7,10 +7,10 @@ export class HistoryApprovers {
   @PrimaryColumn()
   id: string;
 
-  @Column()
+  @Column({ nullable: true })
   userId: string;
 
-  @ManyToOne(() => Users, { eager: true })
+  @ManyToOne(() => Users, { eager: true, nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'userId' })
   user: Users;
 

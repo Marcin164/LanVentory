@@ -2,11 +2,13 @@ import {
   Controller,
   Get,
   Post,
+  Patch,
   Req,
   UseGuards,
   Param,
   Query,
   Body,
+  Delete,
 } from '@nestjs/common';
 import { Request } from '@nestjs/common';
 import { AuthGuard } from 'src/guards/authGuard.guard';
@@ -43,6 +45,18 @@ export class UsersController {
   @Post('/many')
   async insertMany(@Body() body: any): Promise<any> {
     return this.usersService.insertMany(body);
+  }
+
+  @UseGuards(AuthGuard)
+  @Delete(':id')
+  async delete(@Param('id') id: string): Promise<any> {
+    return this.usersService.delete(id);
+  }
+
+  @UseGuards(AuthGuard)
+  @Patch(':id')
+  async update(@Body() body: any, @Param('id') id: string): Promise<any> {
+    return this.usersService.update(body, id);
   }
 
   @UseGuards(AuthGuard)

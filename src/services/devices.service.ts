@@ -25,7 +25,7 @@ export class DevicesService {
       .getRawMany();
   }
 
-  async assignDeviceToUser(deviceId: string, userId: string): Promise<Devices> {
+  async assignDeviceToUser(deviceId: string, userId: any): Promise<Devices> {
     const device = await this.devicesRepository.findOne({
       where: { id: deviceId },
     });

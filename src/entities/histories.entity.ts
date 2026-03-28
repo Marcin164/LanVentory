@@ -43,7 +43,7 @@ export class Histories {
   @Column({ nullable: true })
   damages: string;
 
-  @ManyToOne(() => Users, { eager: true, nullable: true })
+  @ManyToOne(() => Users, { eager: true, nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'userId' })
   user: Users;
 
