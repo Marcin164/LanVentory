@@ -1,4 +1,4 @@
-import { Controller, Get, Req, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Query, Req, Param, UseGuards } from '@nestjs/common';
 import { Request } from '@nestjs/common';
 import { AuthGuard } from 'src/guards/authGuard.guard';
 import { ApplicationsService } from 'src/services/applications.service';
@@ -21,6 +21,11 @@ export class ApplicationsController {
   @Get('/filters')
   async getFilters() {
     return this.applicationsService.getFilterOptions();
+  }
+
+  @Get('/search')
+  async search(@Query('q') q: string) {
+    return this.applicationsService.searchByName(q ?? '');
   }
 
   @Get('/:id')

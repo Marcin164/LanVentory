@@ -48,6 +48,36 @@ export async function devicesWithLocalAdminReport({ db }) {
   return result;
 }
 
+export async function passwordExpiryTimelineReport({ db }) {
+  return db.query(`
+    SELECT
+      CASE
+        WHEN "pwdLastSet"::timestamp > NOW() - INTERVAL '30 days' THEN '0-30 days'
+        WHEN "pwdLastSet"::timestamp > NOW() - INTERVAL '60 days' THEN '30-60 days'
+        WHEN "pwdLastSet"::timestamp > NOW() - INTERVAL '90 days' THEN '60-90 days'
+        ELSE '90+ days (expired)'
+      END as label,
+      COUNT(*)::integer as value
+    FROM users
+    WHERE "pwdLastSet" IS NOT NULL
+    GROUP BY label
+    ORDER BY label
+  `);
+}
+
+export async function disabledButAssignedReport({ db }) {
+  // AD userAccountControl bit 0x2 = ACCOUNTDISABLE
+  return db.query(`
+    SELECT u.username as label, COUNT(d.id)::integer as value
+    FROM users u
+    JOIN devices d ON d."userId" = u.id
+    WHERE (u."userAccountControl"::int & 2) = 2
+    GROUP BY u.username
+    ORDER BY value DESC
+    LIMIT 25
+  `);
+}
+
 export async function patchComplianceReport({ db }) {
   const result = await db.query(`
     SELECT

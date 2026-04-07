@@ -104,7 +104,8 @@ export class TicketsService {
       qb.andWhere(
         `(ticket.description ILIKE :search
         OR ticket.number::text ILIKE :search
-        OR ticket.category ILIKE :search)`,
+        OR ticket.category ILIKE :search
+        OR ticket.type::text ILIKE :search)`,
         { search: `%${search}%` },
       );
     }
@@ -168,9 +169,14 @@ export class TicketsService {
 
     const saved = await this.ticketsCommentsRepository.save(comment);
 
-    this.ticketsGateway.emitNewComment(dto.ticketId, saved);
+    const withAuthor = await this.ticketsCommentsRepository.findOne({
+      where: { id: saved.id },
+      relations: ['author'],
+    });
 
-    return saved;
+    this.ticketsGateway.emitNewComment(ticketId, withAuthor);
+
+    return withAuthor;
   }
 
   async createApproval(ticketId: any, requesterId: any, approverId: any) {

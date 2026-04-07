@@ -63,27 +63,64 @@ export class UsersService {
       throw new Error('Brak danych użytkowników do wstawienia.');
     }
 
-    const users = usersData.map((user: any) => {
-      return {
-        ...user,
+    const parseAdDate = (value: any): Date | null => {
+      if (!value) return null;
+      const str = String(value);
+      // AD FILETIME format (ticks since 1601)
+      if (/^\d{17,}$/.test(str)) {
+        const ms = Number(BigInt(str) / 10000n) - 11644473600000;
+        return ms > 0 ? new Date(ms) : null;
+      }
+      const d = new Date(str);
+      return isNaN(d.getTime()) ? null : d;
+    };
+
+    const users: any = usersData
+      .filter((user: any) => user.givenName)
+      .map((user: any) => ({
         name: user.givenName,
         surname: user.sn,
         email: user.userPrincipalName,
         username: user.sAMAccountName,
-        city: user.l,
-        country: user.co,
+        distinguishedName: user.distinguishedName,
+        userAccountControl: user.userAccountControl
+          ? String(user.userAccountControl)
+          : null,
         phone: user.telephoneNumber,
-      };
-    });
+        title: user.title,
+        department: user.department,
+        company: user.company,
+        office: user.physicalDeliveryOfficeName || user.office,
+        streetAddress: user.streetAddress,
+        city: user.l,
+        postalCode: user.postalCode,
+        country: user.co,
+        manager: user.manager,
+        memberOf: user.memberOf || null,
+        whenCreated: parseAdDate(user.whenCreated),
+        pwdLastSet: parseAdDate(user.pwdLastSet),
+      }));
 
-    try {
-      const result = await this.usersRepository.insert(
-        users.filter((user) => user.name),
-      );
-      return result;
-    } catch (error) {
-      throw new Error('Nie udało się wstawić użytkowników do bazy danych.');
+    let created = 0;
+    let updated = 0;
+
+    for (const user of users) {
+      const existing = user.distinguishedName
+        ? await this.usersRepository.findOneBy({
+            distinguishedName: user.distinguishedName,
+          })
+        : null;
+
+      if (existing) {
+        await this.usersRepository.update(existing.id, user);
+        updated++;
+      } else {
+        await this.usersRepository.insert({ id: uuidv4(), ...user });
+        created++;
+      }
     }
+
+    return { created, updated, total: users.length };
   }
 
   // async syncUsersFromAD(adUsers: any[]): Promise<void> {

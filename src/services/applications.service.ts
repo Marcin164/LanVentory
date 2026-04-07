@@ -58,4 +58,15 @@ export class ApplicationsService {
   async findApplication(id: any): Promise<any> {
     return this.applicationsRepository.findOneBy({ id });
   }
+
+  async searchByName(q: string, limit = 20): Promise<Array<{ name: string }>> {
+    if (!q) return [];
+    return this.applicationsRepository
+      .createQueryBuilder('applications')
+      .select('DISTINCT applications.name', 'name')
+      .where('applications.name ILIKE :q', { q: `%${q}%` })
+      .orderBy('applications.name', 'ASC')
+      .limit(limit)
+      .getRawMany();
+  }
 }
