@@ -1,8 +1,8 @@
-import { Entity, Column, PrimaryColumn } from 'typeorm';
+import { Entity, Column, PrimaryColumn, CreateDateColumn } from 'typeorm';
 
 @Entity()
 export class Forms {
-  @PrimaryColumn()
+  @PrimaryColumn('uuid')
   id: string;
 
   @Column()
@@ -13,4 +13,13 @@ export class Forms {
 
   @Column()
   url: string;
+
+  @Column({ nullable: true })
+  mimetype: string;
+
+  @Column({ type: 'bigint', nullable: true })
+  size: number;
+
+  @CreateDateColumn({ nullable: true })
+  createdAt: Date;
 }

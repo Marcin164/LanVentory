@@ -40,6 +40,7 @@ import { SlaEscalationDefinition } from './entities/slaEscalationDefinition.enti
 import { ScheduleModule } from '@nestjs/schedule';
 import { SystemAuditLog } from './entities/systemAuditLog.entity';
 import { ReportsModule } from './modules/reports.module';
+import { SearchModule } from './modules/search.module';
 
 @Module({
   imports: [
@@ -122,6 +123,7 @@ import { ReportsModule } from './modules/reports.module';
     SettingsModule,
     SlaModule,
     ReportsModule,
+    SearchModule,
   ],
   controllers: [],
   providers: [],
