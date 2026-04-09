@@ -155,8 +155,44 @@ export class UsersService {
   //   }
   // }
 
-  async findAllTable(): Promise<any> {
-    return this.usersRepository
+  async findAllTable(query: any = {}): Promise<any> {
+    const page = Math.max(parseInt(query.page, 10) || 1, 1);
+    const limit = Math.max(parseInt(query.limit, 10) || 30, 1);
+    const search: string | undefined = query.search?.toString().trim();
+
+    const FILTER_FIELDS = [
+      'department',
+      'company',
+      'office',
+      'city',
+      'country',
+      'title',
+      'streetAddress',
+      'postalCode',
+      'manager',
+    ];
+
+    const applyFilters = (qb: any) => {
+      if (search) {
+        qb.andWhere(
+          `(users.name ILIKE :search
+            OR users.surname ILIKE :search
+            OR users.username ILIKE :search
+            OR users.email ILIKE :search)`,
+          { search: `%${search}%` },
+        );
+      }
+
+      for (const field of FILTER_FIELDS) {
+        const value = query[field];
+        if (!value) continue;
+        const arr = Array.isArray(value) ? value : [value];
+        if (arr.length === 0) continue;
+        qb.andWhere(`users.${field} IN (:...${field})`, { [field]: arr });
+      }
+    };
+
+    const dataQb = this.usersRepository
       .createQueryBuilder('users')
       .leftJoin('devices', 'devices', 'users.id = devices.userId')
       .select([
@@ -164,12 +200,9 @@ export class UsersService {
         'users.name AS name',
         'users.surname AS surname',
         'users.username AS username',
-
-        // pobieramy *dowolne jedno* urządzenie poprzez MIN()
         'MIN(devices.assetName) AS assetName',
         'MIN(devices.model) AS model',
         'MIN(devices.id) AS deviceId',
-
         'users.department AS department',
         'users.office AS office',
         'users.country AS country',
@@ -193,7 +226,32 @@ export class UsersService {
       .addGroupBy('users.streetAddress')
       .addGroupBy('users.postalCode')
       .addGroupBy('users.manager')
-      .getRawMany();
+      .orderBy('users.surname', 'ASC')
+      .offset((page - 1) * limit)
+      .limit(limit);
+
+    applyFilters(dataQb);
+
+    const countQb = this.usersRepository
+      .createQueryBuilder('users')
+      .select('COUNT(DISTINCT users.id)', 'count');
+
+    applyFilters(countQb);
+
+    const [data, countRow] = await Promise.all([
+      dataQb.getRawMany(),
+      countQb.getRawOne(),
+    ]);
+
+    const total = parseInt(countRow?.count, 10) || 0;
+
+    return {
+      data,
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 
   async findUser(id: any): Promise<any> {

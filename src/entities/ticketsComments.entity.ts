@@ -40,7 +40,7 @@ export class TicketsComments {
   @JoinColumn({ name: 'authorId' })
   author: Users;
 
-  @Column()
+  @Column({ type: 'text', nullable: true })
   content: string;
 
   @Column({
@@ -49,6 +49,18 @@ export class TicketsComments {
     default: CommentType.PUBLIC,
   })
   type: CommentType;
+
+  @Column({ nullable: true })
+  attachmentName: string;
+
+  @Column({ nullable: true })
+  attachmentPath: string;
+
+  @Column({ nullable: true })
+  attachmentMimetype: string;
+
+  @Column({ type: 'bigint', nullable: true })
+  attachmentSize: number;
 
   @CreateDateColumn()
   createdAt: Date;

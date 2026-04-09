@@ -110,11 +110,58 @@ export class DevicesService {
       .getMany();
   }
 
-  async findDevicesTable(): Promise<any[]> {
-    return this.devicesRepository
+  async findDevicesTable(query: any = {}): Promise<any> {
+    const page = Math.max(parseInt(query.page, 10) || 1, 1);
+    const limit = Math.max(parseInt(query.limit, 10) || 30, 1);
+    const search: string | undefined = query.search?.toString().trim();
+
+    const FILTER_FIELDS = [
+      'group',
+      'model',
+      'subgroup',
+      'state',
+      'location',
+      'manufacturer',
+    ];
+
+    const qb = this.devicesRepository
       .createQueryBuilder('d')
-      .leftJoinAndSelect('d.user', 'user')
-      .getMany();
+      .leftJoinAndSelect('d.user', 'user');
+
+    if (search) {
+      qb.andWhere(
+        `(d.assetName ILIKE :search
+          OR d.serialNumber ILIKE :search
+          OR d.model ILIKE :search
+          OR d.manufacturer ILIKE :search
+          OR d.location ILIKE :search
+          OR user.name ILIKE :search
+          OR user.surname ILIKE :search)`,
+        { search: `%${search}%` },
+      );
+    }
+
+    for (const field of FILTER_FIELDS) {
+      const value = query[field];
+      if (!value) continue;
+      const arr = Array.isArray(value) ? value : [value];
+      if (arr.length === 0) continue;
+      qb.andWhere(`d.${field} IN (:...${field})`, { [field]: arr });
+    }
+
+    qb.orderBy('d.assetName', 'ASC')
+      .skip((page - 1) * limit)
+      .take(limit);
+
+    const [data, total] = await qb.getManyAndCount();
+
+    return {
+      data,
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 
   async getFilterOptions() {

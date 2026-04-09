@@ -41,6 +41,8 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { SystemAuditLog } from './entities/systemAuditLog.entity';
 import { ReportsModule } from './modules/reports.module';
 import { SearchModule } from './modules/search.module';
+import { AssignmentGroupsModule } from './modules/assignmentGroups.module';
+import { AssignmentGroup } from './entities/assignmentGroup.entity';
 
 @Module({
   imports: [
@@ -81,6 +83,7 @@ import { SearchModule } from './modules/search.module';
         SlaEscalationDefinition,
         SlaEscalationInstance,
         SystemAuditLog,
+        AssignmentGroup,
       ],
       synchronize: true,
     }),
@@ -109,6 +112,7 @@ import { SearchModule } from './modules/search.module';
       SlaEscalationDefinition,
       SlaEscalationInstance,
       SystemAuditLog,
+      AssignmentGroup,
     ]),
     ScheduleModule.forRoot(),
     DevicesModule,
@@ -124,6 +128,7 @@ import { SearchModule } from './modules/search.module';
     SlaModule,
     ReportsModule,
     SearchModule,
+    AssignmentGroupsModule,
   ],
   controllers: [],
   providers: [],

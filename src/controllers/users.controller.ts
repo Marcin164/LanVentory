@@ -61,8 +61,8 @@ export class UsersController {
 
   @UseGuards(AuthGuard)
   @Get('/table')
-  async findAllTable(): Promise<any> {
-    return this.usersService.findAllTable();
+  async findAllTable(@Query() query: any): Promise<any> {
+    return this.usersService.findAllTable(query);
   }
 
   @UseGuards(AuthGuard)

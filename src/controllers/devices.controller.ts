@@ -5,6 +5,7 @@ import {
   Req,
   Body,
   Param,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from 'src/guards/authGuard.guard';
@@ -40,8 +41,8 @@ export class DevicesController {
 
   @UseGuards(AuthGuard)
   @Get('/table')
-  async findDevicesTable(@Req() req: Request): Promise<any> {
-    return this.devicesService.findDevicesTable();
+  async findDevicesTable(@Query() query: any): Promise<any> {
+    return this.devicesService.findDevicesTable(query);
   }
 
   @UseGuards(AuthGuard)
