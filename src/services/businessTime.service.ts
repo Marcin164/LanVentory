@@ -60,16 +60,22 @@ export class BusinessTimeService {
       calendar,
     );
 
-    const newDue = addMinutes(dueUtc, pauseMinutes);
-    return newDue;
+    return this.calculateDueDate(dueUtc, pauseMinutes, calendar);
   }
 
   /*
-   * Czy dany moment jest w czasie pracy
+   * Czy dany moment jest w czasie pracy (przyjmuje UTC)
    */
   async isBusinessTime(dateUtc: Date, calendar: Calendar): Promise<boolean> {
     const date = toZonedTime(dateUtc, calendar.timezone);
+    return this.isInBusinessHours(date, calendar);
+  }
 
+  /*
+   * =============== CORE HELPERS =================
+   */
+
+  private async isInBusinessHours(date: Date, calendar: Calendar) {
     if (!(await this.isWorkingDay(date, calendar))) return false;
 
     const start = this.getWorkStart(date, calendar);
@@ -78,12 +84,8 @@ export class BusinessTimeService {
     return !isBefore(date, start) && isBefore(date, end);
   }
 
-  /*
-   * =============== CORE HELPERS =================
-   */
-
   private async moveToBusinessTime(date: Date, calendar: Calendar) {
-    if (await this.isBusinessTime(date, calendar)) return date;
+    if (await this.isInBusinessHours(date, calendar)) return date;
 
     const start = this.getWorkStart(date, calendar);
 
@@ -110,12 +112,18 @@ export class BusinessTimeService {
     const day = getDay(date); // 0=Sunday
 
     // workingDays = "0111110"
-    if (calendar.workingDays[day] !== '1') return false;
+    if (Number(calendar.workingDays[day]) !== 1) return false;
 
     // sprawdz święta
     const dateStr = date.toISOString().slice(0, 10);
 
-    return !calendar.holidays?.some((h: any) => h.holidayDate === dateStr);
+    return !calendar.holidays?.some((h: any) => {
+      const holidayStr =
+        h.date instanceof Date
+          ? h.date.toISOString().slice(0, 10)
+          : String(h.date).slice(0, 10);
+      return holidayStr === dateStr;
+    });
   }
 
   private getWorkStart(date: Date, calendar: Calendar) {
@@ -134,6 +142,14 @@ export class BusinessTimeService {
    * Liczy ile minut roboczych jest między dwiema datami
    * używane dla pauz SLA
    */
+  async calculateBusinessMinutesBetween(
+    startUtc: Date,
+    endUtc: Date,
+    calendar: Calendar,
+  ): Promise<number> {
+    return this.calculateBusinessMinutes(startUtc, endUtc, calendar);
+  }
+
   private async calculateBusinessMinutes(
     startUtc: Date,
     endUtc: Date,

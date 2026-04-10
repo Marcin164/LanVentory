@@ -17,10 +17,10 @@ export async function slaComplianceRateReport({ db }) {
 
 export async function slaEscalationsCountReport({ db }) {
   return db.query(`
-    SELECT ed.name as label, COUNT(ei.id)::integer as value
+    SELECT ed."actionType" as label, COUNT(ei.id)::integer as value
     FROM sla_escalation_instance ei
     JOIN sla_escalation_definition ed ON ed.id = ei."escalation_definition_id"
-    GROUP BY ed.name
+    GROUP BY ed."actionType"
     ORDER BY value DESC
   `);
 }

@@ -1,18 +1,17 @@
-import { Controller, Get, Param, Post } from '@nestjs/common';
+import { Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SlaInstance } from 'src/entities/slaInstance.entity';
 import { SlaEngineService } from 'src/services/slaEngine.service';
-import { SlaBreachService } from 'src/services/slaBreach.service';
-import { SlaPauseService } from 'src/services/slaPause.service';
+import { AuthGuard } from 'src/guards/authGuard.guard';
 
-@Controller('sla')
+@UseGuards(AuthGuard)
+@Controller('sla/admin')
 export class SlaAdminController {
   constructor(
     @InjectRepository(SlaInstance)
     private readonly slaRepo: Repository<SlaInstance>,
     private readonly engine: SlaEngineService,
-    private readonly pauseService: SlaPauseService,
   ) {}
 
   @Get('active')
@@ -22,10 +21,10 @@ export class SlaAdminController {
         breached: false,
         paused: false,
       },
+      relations: ['slaDefinition'],
     });
   }
 
-  // 🚨 Lista breach
   @Get('breaches')
   async getBreaches() {
     return this.slaRepo.find({
@@ -34,24 +33,9 @@ export class SlaAdminController {
     });
   }
 
-  // 🛠 ręczne przeliczenie SLA
   @Post('recalculate/:ticketId')
   async recalc(@Param('ticketId') ticketId: string) {
     await this.engine.handleResolved({ id: ticketId } as any);
     return { message: 'SLA recalculated' };
-  }
-
-  // ⏸ ręczna pauza
-  @Post('pause/:ticketId')
-  async pause(@Param('ticketId') ticketId: string) {
-    await this.pauseService.handleManualPause(ticketId);
-    return { message: 'SLA paused' };
-  }
-
-  // ▶ ręczne wznowienie
-  @Post('resume/:ticketId')
-  async resume(@Param('ticketId') ticketId: string) {
-    await this.pauseService.handleManualResume(ticketId);
-    return { message: 'SLA resumed' };
   }
 }

@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject, forwardRef } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Tickets } from 'src/entities/tickets.entity';
 import { SlaEscalationInstance } from 'src/entities/slaEscalationInstance.entity';
+import { SlaEngineService } from './slaEngine.service';
 
 enum EscalationActionType {
   NOTIFY = 'NOTIFY',
@@ -15,6 +16,9 @@ export class EscalationActionService {
   constructor(
     @InjectRepository(Tickets)
     private ticketsRepo: Repository<Tickets>,
+
+    @Inject(forwardRef(() => SlaEngineService))
+    private readonly slaEngine: SlaEngineService,
   ) {}
 
   async execute(escalation: SlaEscalationInstance) {
@@ -50,8 +54,15 @@ export class EscalationActionService {
   }
 
   private async increasePriority(ticketId: string, config: any) {
-    await this.ticketsRepo.update(ticketId, {
-      priority: config?.to,
-    });
+    const ticket = await this.ticketsRepo.findOneBy({ id: ticketId });
+    if (!ticket) return;
+
+    const previousPriority = ticket.priority;
+    ticket.priority = config?.to;
+    await this.ticketsRepo.save(ticket);
+
+    if (ticket.priority !== previousPriority) {
+      await this.slaEngine.handlePriorityChange(ticket);
+    }
   }
 }

@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { SlaEscalationInstance } from 'src/entities/slaEscalationInstance.entity';
 import { SlaInstance } from 'src/entities/slaInstance.entity';
 import { Repository } from 'typeorm';
+import { BusinessTimeService } from './businessTime.service';
 
 @Injectable()
 export class SlaRuntimeService {
@@ -12,12 +13,14 @@ export class SlaRuntimeService {
 
     @InjectRepository(SlaEscalationInstance)
     private readonly escalationRepo: Repository<SlaEscalationInstance>,
+
+    private readonly businessTime: BusinessTimeService,
   ) {}
 
   async getForTicket(ticketId: string) {
     const instances = await this.slaRepo.find({
       where: { ticketId },
-      relations: ['slaDefinition'],
+      relations: ['slaDefinition', 'slaDefinition.calendar', 'slaDefinition.calendar.holidays'],
     });
 
     if (!instances.length) {
@@ -26,44 +29,62 @@ export class SlaRuntimeService {
 
     const now = new Date();
 
-    const result = instances.map((instance) => {
-      const totalMinutes = instance.slaDefinition.targetMinutes;
+    const result = await Promise.all(
+      instances.map(async (instance) => {
+        const totalMinutes = instance.slaDefinition.targetMinutes;
+        const calendar = instance.slaDefinition.calendar;
 
-      const remainingMinutes = Math.max(
-        Math.ceil((instance.dueAt.getTime() - now.getTime()) / 60000),
-        0,
-      );
+        let remainingMinutes: number;
 
-      const usedMinutes = Math.max(totalMinutes - remainingMinutes, 0);
+        if (instance.breached) {
+          remainingMinutes = 0;
+        } else if (instance.paused) {
+          remainingMinutes = await this.businessTime.calculateBusinessMinutesBetween(
+            now,
+            instance.dueAt,
+            calendar,
+          );
+        } else {
+          remainingMinutes = await this.businessTime.calculateBusinessMinutesBetween(
+            now,
+            instance.dueAt,
+            calendar,
+          );
+        }
 
-      const usedPercentage = Math.min(
-        Math.round((usedMinutes / totalMinutes) * 100),
-        100,
-      );
+        remainingMinutes = Math.max(remainingMinutes, 0);
 
-      const status = instance.breached
-        ? 'BREACHED'
-        : instance.paused
-          ? 'PAUSED'
-          : 'ACTIVE';
+        const usedMinutes = Math.max(totalMinutes - remainingMinutes, 0);
 
-      return {
-        id: instance.id,
+        const usedPercentage = Math.min(
+          Math.round((usedMinutes / totalMinutes) * 100),
+          100,
+        );
 
-        type: instance.slaDefinition.type,
-        name: instance.slaDefinition.name,
+        const status = instance.breached
+          ? 'BREACHED'
+          : instance.paused
+            ? 'PAUSED'
+            : 'ACTIVE';
 
-        status,
-        paused: instance.paused,
-        breached: instance.breached,
+        return {
+          id: instance.id,
 
-        dueAt: instance.dueAt,
-        remainingMinutes,
-        usedPercentage,
+          type: instance.slaDefinition.type,
+          name: instance.slaDefinition.name,
 
-        targetMinutes: totalMinutes,
-      };
-    });
+          status,
+          paused: instance.paused,
+          breached: instance.breached,
+
+          dueAt: instance.dueAt,
+          remainingMinutes,
+          usedPercentage,
+
+          targetMinutes: totalMinutes,
+        };
+      }),
+    );
 
     return {
       instances: result,

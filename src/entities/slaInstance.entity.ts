@@ -9,6 +9,7 @@ import {
 } from 'typeorm';
 import { SlaDefinition } from './slaDefinition.entity';
 import { SlaPause } from './slaPause.entity';
+import { Tickets } from './tickets.entity';
 
 @Entity()
 export class SlaInstance {
@@ -18,6 +19,10 @@ export class SlaInstance {
   @Index()
   @Column({ name: 'ticket_id', type: 'uuid' })
   ticketId: string;
+
+  @ManyToOne(() => Tickets, (t) => t.slaInstances, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'ticket_id' })
+  ticket: Tickets;
 
   @ManyToOne(() => SlaDefinition, (sla: any) => sla.instances)
   @JoinColumn({ name: 'sla_definition_id' })

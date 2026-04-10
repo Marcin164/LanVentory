@@ -31,10 +31,14 @@ export class SlaCreatorService {
       ? manager.getRepository(SlaInstance)
       : this.slaInstanceRepo;
 
-    const rules = await ruleRepo.find({
+    const allRules = await ruleRepo.find({
       where: { priority: ticket.priority },
       relations: ['slaDefinition', 'slaDefinition.calendar'],
     });
+
+    const rules = allRules.filter(
+      (rule) => rule.ticketType === null || rule.ticketType === ticket.type,
+    );
 
     for (const rule of rules) {
       const def = rule.slaDefinition;

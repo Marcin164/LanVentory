@@ -34,6 +34,7 @@ import { SlaPauseService } from 'src/services/slaPause.service';
 import { SlaRuleService } from 'src/services/slaRule.service';
 import { SlaRuntimeService } from 'src/services/slaRuntime.service';
 import { EscalationWorker } from 'src/workers/escalation.worker';
+import { SlaBreachWorker } from 'src/workers/slaBreach.worker';
 
 @Module({
   imports: [
@@ -89,6 +90,9 @@ import { EscalationWorker } from 'src/workers/escalation.worker';
     EscalationActionService,
     EscalationWorker,
     EscalationConfigService,
+
+    // Workers
+    SlaBreachWorker,
 
     // Audit
     AuditService,

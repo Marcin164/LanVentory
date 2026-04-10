@@ -5,6 +5,7 @@ import { Repository, EntityManager, IsNull } from 'typeorm';
 import { Tickets, TicketState } from 'src/entities/tickets.entity';
 import { SlaInstance } from 'src/entities/slaInstance.entity';
 import { SlaPause } from 'src/entities/slaPause.entity';
+import { SlaEscalationInstance } from 'src/entities/slaEscalationInstance.entity';
 import { BusinessTimeService } from './businessTime.service';
 import { AuditService } from './audit.service';
 
@@ -16,6 +17,9 @@ export class SlaPauseService {
 
     @InjectRepository(SlaPause)
     private readonly pauseRepo: Repository<SlaPause>,
+
+    @InjectRepository(SlaEscalationInstance)
+    private readonly escalationInstRepo: Repository<SlaEscalationInstance>,
 
     private readonly businessTime: BusinessTimeService,
     private readonly audit: AuditService,
@@ -110,6 +114,8 @@ export class SlaPauseService {
 
         await instanceRepo.save(inst);
 
+        await this.recalcEscalations(inst, pause, manager);
+
         await this.audit.log(
           'SLA_INSTANCE',
           inst.id,
@@ -200,6 +206,45 @@ export class SlaPauseService {
       );
 
       await instanceRepo.save(inst);
+
+      await this.recalcEscalations(inst, pause, manager);
+    }
+  }
+
+  /*
+   * =====================================================
+   * RECALCULATE ESCALATION TRIGGER TIMES AFTER RESUME
+   * =====================================================
+   */
+  private async recalcEscalations(
+    inst: SlaInstance,
+    pause: SlaPause,
+    manager?: EntityManager,
+  ) {
+    const escRepo = manager
+      ? manager.getRepository(SlaEscalationInstance)
+      : this.escalationInstRepo;
+
+    const pendingEscalations = await escRepo.find({
+      where: {
+        slaInstance: { id: inst.id },
+        triggered: false,
+      },
+    });
+
+    const pauseMinutes = await this.businessTime.calculateBusinessMinutesBetween(
+      pause.pausedAt,
+      pause.resumedAt!,
+      inst.slaDefinition.calendar,
+    );
+
+    for (const esc of pendingEscalations) {
+      esc.triggerAt = await this.businessTime.calculateDueDate(
+        esc.triggerAt,
+        pauseMinutes,
+        inst.slaDefinition.calendar,
+      );
+      await escRepo.save(esc);
     }
   }
 }
