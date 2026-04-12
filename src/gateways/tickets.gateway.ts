@@ -43,4 +43,10 @@ export class TicketsGateway {
   emitTicketUpdated(ticketId: string, payload: any) {
     this.server.to(`ticket:${ticketId}`).emit('ticket.updated', payload);
   }
+
+  emitTicketActivity(ticketId: string, payload: any) {
+    this.server
+      .to(`ticket:${ticketId}`)
+      .emit('ticket.activity.created', payload);
+  }
 }

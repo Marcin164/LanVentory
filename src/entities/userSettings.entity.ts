@@ -32,4 +32,7 @@ export class UserSettings {
 
   @Column({ type: 'jsonb' })
   ticketsTableColumnOrder: string[];
+
+  @Column({ default: 'small' })
+  reportsLayout: string;
 }

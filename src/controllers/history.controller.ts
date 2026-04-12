@@ -3,13 +3,20 @@ import {
   Post,
   Get,
   Req,
+  Res,
   Body,
   UseGuards,
   Param,
+  Query,
 } from '@nestjs/common';
 import { Request } from '@nestjs/common';
+import type { Response } from 'express';
 import { AuthGuard } from 'src/guards/authGuard.guard';
-import { HistoriesService } from 'src/services/histories.service';
+import { HistoryAccessGuard } from 'src/guards/historyAccessGuard.guard';
+import {
+  HistoriesService,
+  type HistoryFeedQuery,
+} from 'src/services/histories.service';
 
 @UseGuards(AuthGuard)
 @Controller('histories')
@@ -19,6 +26,24 @@ export class HistoriesController {
   @Get()
   async findAll(@Req() req: Request): Promise<any> {
     return this.historiesService.findAll();
+  }
+
+  @UseGuards(HistoryAccessGuard)
+  @Get('feed')
+  async findFeed(@Query() query: HistoryFeedQuery): Promise<any> {
+    return this.historiesService.findFeed(query);
+  }
+
+  @UseGuards(HistoryAccessGuard)
+  @Get('feed/export')
+  async exportFeed(
+    @Query() query: HistoryFeedQuery,
+    @Res() res: Response,
+  ): Promise<void> {
+    const { filename, csv } = await this.historiesService.exportFeedCsv(query);
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.send(csv);
   }
 
   @Post()

@@ -5,6 +5,7 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
+  Index,
 } from 'typeorm';
 import { HistoryApprovers } from './historyApprovers.entity';
 import { HistoryComponents } from './historyComponents.entity';
@@ -12,6 +13,7 @@ import { Users } from './users.entity';
 import { Devices } from './devices.entity';
 
 @Entity()
+@Index('IDX_histories_date_id', ['date', 'id'])
 export class Histories {
   @PrimaryColumn()
   id: string;

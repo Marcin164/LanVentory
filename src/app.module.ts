@@ -43,6 +43,10 @@ import { ReportsModule } from './modules/reports.module';
 import { SearchModule } from './modules/search.module';
 import { AssignmentGroupsModule } from './modules/assignmentGroups.module';
 import { AssignmentGroup } from './entities/assignmentGroup.entity';
+import { TicketActivity } from './entities/ticketActivity.entity';
+import { KnowledgeSpace } from './entities/knowledgeSpace.entity';
+import { KnowledgeArticle } from './entities/knowledgeArticle.entity';
+import { KnowledgeModule } from './modules/knowledge.module';
 
 @Module({
   imports: [
@@ -84,6 +88,9 @@ import { AssignmentGroup } from './entities/assignmentGroup.entity';
         SlaEscalationInstance,
         SystemAuditLog,
         AssignmentGroup,
+        TicketActivity,
+        KnowledgeSpace,
+        KnowledgeArticle,
       ],
       synchronize: true,
     }),
@@ -113,6 +120,7 @@ import { AssignmentGroup } from './entities/assignmentGroup.entity';
       SlaEscalationInstance,
       SystemAuditLog,
       AssignmentGroup,
+      TicketActivity,
     ]),
     ScheduleModule.forRoot(),
     DevicesModule,
@@ -129,6 +137,7 @@ import { AssignmentGroup } from './entities/assignmentGroup.entity';
     ReportsModule,
     SearchModule,
     AssignmentGroupsModule,
+    KnowledgeModule,
   ],
   controllers: [],
   providers: [],

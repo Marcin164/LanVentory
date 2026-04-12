@@ -40,8 +40,13 @@ export class TicketsController {
   }
 
   @Patch(':id')
-  async updateTicket(@Param('id') id: string, @Body() dto: any) {
-    return this.ticketsService.updateTicket(id, dto);
+  async updateTicket(
+    @Param('id') id: string,
+    @Body() dto: any,
+    @Req() req: any,
+  ) {
+    const userId = req?.user?.properties?.metadata?.id;
+    return this.ticketsService.updateTicket(id, dto, userId);
   }
 
   @Post()

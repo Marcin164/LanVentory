@@ -6,11 +6,12 @@ import { TicketsService } from 'src/services/tickets.service';
 import { TicketsGateway } from 'src/gateways/tickets.gateway';
 import { TicketsComments } from 'src/entities/ticketsComments.entity';
 import { TicketsApprovals } from 'src/entities/ticketsApprovals.entity';
+import { TicketActivity } from 'src/entities/ticketActivity.entity';
 import { SlaModule } from './sla.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Tickets, TicketsComments, TicketsApprovals]),
+    TypeOrmModule.forFeature([Tickets, TicketsComments, TicketsApprovals, TicketActivity]),
     SlaModule,
   ],
   controllers: [TicketsController],

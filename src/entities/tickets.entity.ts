@@ -15,6 +15,7 @@ import { Users } from './users.entity';
 import { Devices } from './devices.entity';
 import { TicketsApprovals } from './ticketsApprovals.entity';
 import { SlaInstance } from './slaInstance.entity';
+import { TicketActivity } from './ticketActivity.entity';
 
 export enum TicketType {
   INCIDENT = 'Incident',
@@ -140,6 +141,9 @@ export class Tickets {
 
   @OneToMany(() => SlaInstance, (sla: any) => sla.ticket)
   slaInstances: SlaInstance[];
+
+  @OneToMany(() => TicketActivity, (activity) => activity.ticket)
+  activities: TicketActivity[];
 
   @CreateDateColumn()
   createdAt: Date;

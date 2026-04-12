@@ -11,6 +11,7 @@ import { TicketsGateway } from 'src/gateways/tickets.gateway';
 import { TicketsComments } from 'src/entities/ticketsComments.entity';
 import { TicketsApprovals } from 'src/entities/ticketsApprovals.entity';
 import { SlaEngineService } from './slaEngine.service';
+import { TicketActivity } from 'src/entities/ticketActivity.entity';
 import {
   BadRequestException,
   ForbiddenException,
@@ -19,6 +20,15 @@ import {
 import * as fs from 'fs';
 import * as path from 'path';
 import { randomUUID } from 'crypto';
+
+const TRACKED_FIELDS = [
+  'state',
+  'priority',
+  'impact',
+  'urgency',
+  'assignee',
+  'assignmentGroup',
+];
 
 const ATTACHMENT_DIR = path.resolve(process.cwd(), 'uploads', 'tickets');
 
@@ -48,6 +58,9 @@ export class TicketsService {
 
     @InjectRepository(TicketsApprovals)
     private ticketsApprovalsRepository: Repository<TicketsApprovals>,
+
+    @InjectRepository(TicketActivity)
+    private ticketActivityRepository: Repository<TicketActivity>,
 
     private readonly ticketsGateway: TicketsGateway,
     private readonly slaEngine: SlaEngineService,
@@ -89,7 +102,7 @@ export class TicketsService {
    * UPDATE TICKET + SLA LIFECYCLE
    * ======================
    */
-  async updateTicket(id: string, dto: UpdateTicketDto) {
+  async updateTicket(id: string, dto: UpdateTicketDto, userId?: string) {
     return this.ticketsRepository.manager.transaction(async (manager: any) => {
       const ticket = await manager.findOne(Tickets, {
         where: { id },
@@ -100,9 +113,43 @@ export class TicketsService {
       const previousState = ticket.state;
       const previousPriority = ticket.priority;
 
+      // track field changes for activity log
+      const changes: { field: string; oldValue: string; newValue: string }[] =
+        [];
+
+      for (const field of TRACKED_FIELDS) {
+        if (dto[field] !== undefined && dto[field] !== ticket[field]) {
+          changes.push({
+            field,
+            oldValue: ticket[field] ?? null,
+            newValue: dto[field],
+          });
+        }
+      }
+
       Object.assign(ticket, dto);
 
       const updated = await manager.save(ticket);
+
+      // save activity entries
+      const activityRepo = manager.getRepository(TicketActivity);
+      const savedActivities: TicketActivity[] = [];
+
+      for (const change of changes) {
+        const activity = await activityRepo.save({
+          ticketId: id,
+          userId: userId ?? null,
+          field: change.field,
+          oldValue: change.oldValue,
+          newValue: change.newValue,
+        });
+        savedActivities.push(activity);
+      }
+
+      // emit activities via websocket
+      for (const activity of savedActivities) {
+        this.ticketsGateway.emitTicketActivity(id, activity);
+      }
 
       // przekazujemy manager do SLA Engine
       await this.slaEngine.handleStateChange(updated, previousState, manager);
@@ -214,8 +261,10 @@ export class TicketsService {
       .leftJoinAndSelect('ticket.device', 'device')
       .leftJoinAndSelect('ticket.comments', 'comments')
       .leftJoinAndSelect('ticket.approvals', 'approvals')
+      .leftJoinAndSelect('ticket.activities', 'activities')
       .leftJoinAndSelect('comments.author', 'author')
       .leftJoinAndSelect('approvals.approver', 'approver')
+      .leftJoinAndSelect('activities.user', 'activityUser')
       .where('ticket.id = :id', { id })
       .orderBy('comments.createdAt', 'ASC')
       .getOne();
