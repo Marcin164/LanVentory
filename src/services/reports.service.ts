@@ -25,6 +25,21 @@ export class ReportsService {
     );
   }
 
+  async generateBatch(types: string[]): Promise<Record<string, any>> {
+    const unique = [...new Set(types)];
+    const entries = await Promise.all(
+      unique.map(async (type) => {
+        try {
+          const data = await this.generate(type);
+          return [type, data] as const;
+        } catch {
+          return [type, []] as const;
+        }
+      }),
+    );
+    return Object.fromEntries(entries);
+  }
+
   async exportCsv(type: string, filters?: Record<string, any>) {
     const data = await this.generate(type, filters);
     const csv = toCsv(Array.isArray(data) ? data : []);

@@ -1,4 +1,4 @@
-import { Controller, Get, Query, Res } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Res } from '@nestjs/common';
 import type { Response } from 'express';
 import { ReportsService } from 'src/services/reports.service';
 
@@ -9,6 +9,11 @@ export class ReportsController {
   @Get('list')
   list() {
     return this.reportsService.list();
+  }
+
+  @Post('batch')
+  async batch(@Body() body: { types: string[] }) {
+    return this.reportsService.generateBatch(body.types);
   }
 
   @Get('export')
