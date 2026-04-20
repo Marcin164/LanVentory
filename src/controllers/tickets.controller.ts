@@ -34,6 +34,25 @@ export class TicketsController {
     return this.ticketsService.getFilterOptions();
   }
 
+  @Get('/mine')
+  async getMyTickets(
+    @Req() req: any,
+    @Query('scope') scope: 'open' | 'closed' = 'open',
+  ) {
+    const userId = req?.user?.properties?.metadata?.id;
+    return this.ticketsService.getMyTickets(userId, scope);
+  }
+
+  @Get('/categories')
+  async getTicketCategories() {
+    return this.ticketsService.getTicketCategories();
+  }
+
+  @Patch('/categories')
+  async updateTicketCategories(@Body() dto: any) {
+    return this.ticketsService.updateTicketCategories(dto);
+  }
+
   @Get(':id')
   async getTicket(@Param('id') id: string) {
     return this.ticketsService.getTicketById(id);

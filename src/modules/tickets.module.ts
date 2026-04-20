@@ -7,11 +7,18 @@ import { TicketsGateway } from 'src/gateways/tickets.gateway';
 import { TicketsComments } from 'src/entities/ticketsComments.entity';
 import { TicketsApprovals } from 'src/entities/ticketsApprovals.entity';
 import { TicketActivity } from 'src/entities/ticketActivity.entity';
+import { AdminSettings } from 'src/entities/adminSettings.entity';
 import { SlaModule } from './sla.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Tickets, TicketsComments, TicketsApprovals, TicketActivity]),
+    TypeOrmModule.forFeature([
+      Tickets,
+      TicketsComments,
+      TicketsApprovals,
+      TicketActivity,
+      AdminSettings,
+    ]),
     SlaModule,
   ],
   controllers: [TicketsController],

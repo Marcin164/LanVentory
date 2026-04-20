@@ -80,30 +80,34 @@ export class SearchService {
       users: users.map((u) => ({
         id: u.id,
         type: 'user',
-        title: `${u.name ?? ''} ${u.surname ?? ''}`.trim() || u.username || u.email,
+        title:
+          `${u.name ?? ''} ${u.surname ?? ''}`.trim() || u.username || u.email,
         subtitle: u.email || u.username,
-        url: `/users/${u.id}`,
+        url: `/admin/users/${u.id}`,
       })),
       devices: devices.map((d) => ({
         id: d.id,
         type: 'device',
         title: d.assetName || d.serialNumber || d.id,
-        subtitle: [d.manufacturer, d.model].filter(Boolean).join(' ') || d.location,
-        url: `/devices/${d.id}/system`,
+        subtitle:
+          [d.manufacturer, d.model].filter(Boolean).join(' ') || d.location,
+        url: `/admin/devices/${d.id}/system`,
       })),
       tickets: tickets.map((t) => ({
         id: t.id,
         type: 'ticket',
         title: `#${t.number} ${t.category ?? ''}`.trim(),
         subtitle: (t.description || '').slice(0, 80),
-        url: `/helpdesk/${t.id}`,
+        url: `/admin/helpdesk/${t.id}`,
       })),
       histories: histories.map((h) => ({
         id: h.id,
         type: 'history',
         title: h.details ? h.details.slice(0, 60) : `Wpis ${h.id}`,
         subtitle: [h.date, h.ticket].filter(Boolean).join(' • '),
-        url: h.deviceId ? `/devices/${h.deviceId}/history` : `/helpdesk`,
+        url: h.deviceId
+          ? `/admin/devices/${h.deviceId}/history`
+          : `/admin/helpdesk`,
       })),
     };
   }

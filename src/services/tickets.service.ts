@@ -12,6 +12,8 @@ import { TicketsComments } from 'src/entities/ticketsComments.entity';
 import { TicketsApprovals } from 'src/entities/ticketsApprovals.entity';
 import { SlaEngineService } from './slaEngine.service';
 import { TicketActivity } from 'src/entities/ticketActivity.entity';
+import { AdminSettings } from 'src/entities/adminSettings.entity';
+import { randomUUID as nodeRandomUUID } from 'crypto';
 import {
   BadRequestException,
   ForbiddenException,
@@ -61,6 +63,9 @@ export class TicketsService {
 
     @InjectRepository(TicketActivity)
     private ticketActivityRepository: Repository<TicketActivity>,
+
+    @InjectRepository(AdminSettings)
+    private adminSettingsRepository: Repository<AdminSettings>,
 
     private readonly ticketsGateway: TicketsGateway,
     private readonly slaEngine: SlaEngineService,
@@ -363,6 +368,88 @@ export class TicketsService {
     });
 
     return this.ticketsApprovalsRepository.save(approval);
+  }
+
+  /*
+   * ======================
+   * MY TICKETS (requester-scoped)
+   * ======================
+   */
+  async getMyTickets(requesterId: string, scope: 'open' | 'closed' = 'open') {
+    const closedStates = ['Closed', 'Cancelled', 'Resolved'];
+
+    const qb = this.ticketsRepository
+      .createQueryBuilder('ticket')
+      .leftJoinAndSelect('ticket.requester', 'requester')
+      .where('ticket.requesterId = :requesterId', { requesterId });
+
+    if (scope === 'open') {
+      qb.andWhere('ticket.state NOT IN (:...closedStates)', { closedStates });
+    } else {
+      qb.andWhere('ticket.state IN (:...closedStates)', { closedStates });
+    }
+
+    qb.orderBy('ticket.updatedAt', 'DESC');
+    return qb.getMany();
+  }
+
+  /*
+   * ======================
+   * TICKET CATEGORIES (managed via AdminSettings)
+   * ======================
+   */
+  private readonly CATEGORY_KEY = 'ticket_categories';
+
+  private defaultCategories(): {
+    Incident: string[];
+    Service: string[];
+  } {
+    return {
+      Incident: [
+        'Hardware issue',
+        'Software issue',
+        'Network issue',
+        'Account / Access',
+        'Security incident',
+        'Other',
+      ],
+      Service: [
+        'New equipment',
+        'Software installation',
+        'Account request',
+        'Access request',
+        'General question',
+        'Other',
+      ],
+    };
+  }
+
+  async getTicketCategories() {
+    const row = await this.adminSettingsRepository.findOne({
+      where: { key: this.CATEGORY_KEY },
+    });
+    if (!row) return this.defaultCategories();
+    return row.value ?? this.defaultCategories();
+  }
+
+  async updateTicketCategories(value: {
+    Incident: string[];
+    Service: string[];
+  }) {
+    let row = await this.adminSettingsRepository.findOne({
+      where: { key: this.CATEGORY_KEY },
+    });
+    if (!row) {
+      row = this.adminSettingsRepository.create({
+        id: nodeRandomUUID(),
+        key: this.CATEGORY_KEY,
+        value,
+      });
+    } else {
+      row.value = value;
+    }
+    await this.adminSettingsRepository.save(row);
+    return row.value;
   }
 
   async updateApproval(id: any, dto: any, currentUserId?: string) {

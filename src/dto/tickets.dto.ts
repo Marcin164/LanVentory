@@ -83,4 +83,5 @@ export class CreateTicketDto {
   impact?: TicketImpact;
   urgency?: TicketUrgency;
   category?: string;
+  deviceId?: string;
 }

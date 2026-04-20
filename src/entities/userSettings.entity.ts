@@ -11,8 +11,23 @@ export class UserSettings {
   @Column({ default: 'en' })
   language: string;
 
-  @Column({ default: 'light' })
+  @Column({ default: 'system' })
   theme: string;
+
+  @Column({ default: 'dashboards' })
+  startPage: string;
+
+  @Column({ default: 'DD/MM/YYYY' })
+  dateFormat: string;
+
+  @Column({ default: '24h' })
+  timeFormat: string;
+
+  @Column({ type: 'int', default: 25 })
+  defaultPageSize: number;
+
+  @Column({ default: false })
+  compactMode: boolean;
 
   @Column({
     type: 'jsonb',
