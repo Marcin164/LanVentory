@@ -30,8 +30,13 @@ export class HistoryAccessGuard implements CanActivate {
     }
 
     const user = await this.usersRepository.findOneBy({ id: userId });
-    if (!user || (!user.isAdmin && !user.isApprover)) {
-      throw new ForbiddenException('History feed access requires admin or approver role');
+    if (
+      !user ||
+      (!user.isAdmin && !user.isApprover && !user.isAuditor)
+    ) {
+      throw new ForbiddenException(
+        'History feed access requires admin, approver or auditor role',
+      );
     }
     return true;
   }

@@ -9,6 +9,7 @@ import { TicketsApprovals } from 'src/entities/ticketsApprovals.entity';
 import { TicketActivity } from 'src/entities/ticketActivity.entity';
 import { AdminSettings } from 'src/entities/adminSettings.entity';
 import { SlaModule } from './sla.module';
+import { AuditModule } from './audit.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { SlaModule } from './sla.module';
       AdminSettings,
     ]),
     SlaModule,
+    AuditModule,
   ],
   controllers: [TicketsController],
   providers: [TicketsService, TicketsGateway],

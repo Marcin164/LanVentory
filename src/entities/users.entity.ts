@@ -62,6 +62,18 @@ export class Users {
   @Column({ nullable: true, default: false })
   isAdmin: boolean;
 
+  @Column({ nullable: true, default: false })
+  isAuditor: boolean;
+
+  @Column({ nullable: true, default: false })
+  isCompliance: boolean;
+
+  @Column({ nullable: true, default: false })
+  isHelpdesk: boolean;
+
+  @Column({ nullable: true, default: false })
+  isDpo: boolean;
+
   @Column({ type: 'jsonb', nullable: true })
   memberOf: Record<string, any>;
 

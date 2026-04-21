@@ -35,6 +35,7 @@ import { SlaInstance } from './entities/slaInstance.entity';
 import { SlaPause } from './entities/slaPause.entity';
 import { SlaRule } from './entities/slaRule.entity';
 import { SlaModule } from './modules/sla.module';
+import { AuditModule } from './modules/audit.module';
 import { SlaEscalationInstance } from './entities/slaEscalationInstance.entity';
 import { SlaEscalationDefinition } from './entities/slaEscalationDefinition.entity';
 import { ScheduleModule } from '@nestjs/schedule';
@@ -47,6 +48,11 @@ import { TicketActivity } from './entities/ticketActivity.entity';
 import { KnowledgeSpace } from './entities/knowledgeSpace.entity';
 import { KnowledgeArticle } from './entities/knowledgeArticle.entity';
 import { KnowledgeModule } from './modules/knowledge.module';
+import { AccessControlModule } from './modules/accessControl.module';
+import { PrivacyModule } from './modules/privacy.module';
+import { RetentionPolicy } from './entities/retentionPolicy.entity';
+import { RetentionModule } from './modules/retention.module';
+import { EvidenceModule } from './modules/evidence.module';
 
 @Module({
   imports: [
@@ -91,6 +97,7 @@ import { KnowledgeModule } from './modules/knowledge.module';
         TicketActivity,
         KnowledgeSpace,
         KnowledgeArticle,
+        RetentionPolicy,
       ],
       synchronize: true,
     }),
@@ -123,6 +130,7 @@ import { KnowledgeModule } from './modules/knowledge.module';
       TicketActivity,
     ]),
     ScheduleModule.forRoot(),
+    AccessControlModule,
     DevicesModule,
     UsersModule,
     FormsModule,
@@ -134,6 +142,10 @@ import { KnowledgeModule } from './modules/knowledge.module';
     TicketsModule,
     SettingsModule,
     SlaModule,
+    AuditModule,
+    PrivacyModule,
+    RetentionModule,
+    EvidenceModule,
     ReportsModule,
     SearchModule,
     AssignmentGroupsModule,

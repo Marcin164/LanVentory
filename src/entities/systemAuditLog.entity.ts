@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class SystemAuditLog {
@@ -19,4 +19,14 @@ export class SystemAuditLog {
 
   @Column({ type: 'timestamp', default: () => 'now()' })
   createdAt: Date;
+
+  @Index({ unique: true })
+  @Column({ type: 'bigint', nullable: true })
+  sequence: string | null;
+
+  @Column({ type: 'varchar', length: 64, nullable: true })
+  hash: string | null;
+
+  @Column({ type: 'varchar', length: 64, nullable: true })
+  prevHash: string | null;
 }

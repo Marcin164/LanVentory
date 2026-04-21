@@ -9,9 +9,11 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from 'src/guards/authGuard.guard';
+import { Role, Roles } from 'src/decorators/roles.decorator';
 import { SlaDefinitionService } from 'src/services/slaDefinition.service';
 
-@UseGuards(AuthGuard) // + AdminGuard jeśli masz
+@UseGuards(AuthGuard)
+@Roles(Role.Admin)
 @Controller('sla/definitions')
 export class SlaDefinitionController {
   constructor(private readonly service: SlaDefinitionService) {}

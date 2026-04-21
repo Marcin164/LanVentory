@@ -7,6 +7,7 @@ import { HistoryComponents } from 'src/entities/historyComponents.entity';
 import { Users } from 'src/entities/users.entity';
 import { HistoryAccessGuard } from 'src/guards/historyAccessGuard.guard';
 import { HistoriesService } from 'src/services/histories.service';
+import { AuditModule } from './audit.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { HistoriesService } from 'src/services/histories.service';
       HistoryComponents,
       Users,
     ]),
+    AuditModule,
   ],
   controllers: [HistoriesController],
   providers: [HistoriesService, HistoryAccessGuard],

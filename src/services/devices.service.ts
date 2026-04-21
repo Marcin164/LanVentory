@@ -1,8 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { randomBytes } from 'crypto';
 import { Devices } from 'src/entities/devices.entity';
 import { uuidv4 } from 'src/helpers/uuidv4';
+import { hashAgentSecret } from 'src/guards/agentGuard.guard';
+
+const PREV_SECRET_GRACE_MS = 24 * 60 * 60 * 1000;
 
 @Injectable()
 export class DevicesService {
@@ -65,6 +69,34 @@ export class DevicesService {
     return await this.devicesRepository.findOneBy({
       id: deviceId,
     });
+  }
+
+  async rotateAgentSecret(deviceId: string): Promise<{ secret: string }> {
+    const device = await this.devicesRepository.findOneBy({ id: deviceId });
+    if (!device) throw new NotFoundException('Device not found');
+    const secret = randomBytes(32).toString('hex');
+    const now = new Date();
+    device.apiSecretHashPrev = device.apiSecretHash;
+    device.apiSecretPrevValidUntil = device.apiSecretHash
+      ? new Date(now.getTime() + PREV_SECRET_GRACE_MS)
+      : null;
+    device.apiSecretHash = hashAgentSecret(secret);
+    device.apiSecretRotatedAt = now;
+    await this.devicesRepository.save(device);
+    return { secret };
+  }
+
+  async revokeAgentSecret(deviceId: string): Promise<void> {
+    const device = await this.devicesRepository.findOneBy({ id: deviceId });
+    if (!device) throw new NotFoundException('Device not found');
+    device.apiSecretHash = null;
+    device.apiSecretHashPrev = null;
+    device.apiSecretPrevValidUntil = null;
+    await this.devicesRepository.save(device);
+  }
+
+  async markScanReceived(deviceId: string) {
+    await this.devicesRepository.update(deviceId, { lastScanAt: new Date() });
   }
 
   async updateScanInfoBySerialTag(scanInfo: any): Promise<any> {

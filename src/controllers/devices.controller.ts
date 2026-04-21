@@ -9,19 +9,28 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from 'src/guards/authGuard.guard';
+import { AgentGuard } from 'src/guards/agentGuard.guard';
+import { Role, Roles } from 'src/decorators/roles.decorator';
 import { DevicesService } from 'src/services/devices.service';
+import { AuditService } from 'src/services/audit.service';
+import { DeviceScanDto } from 'src/dto/devices.dto';
 
 @Controller('devices')
 export class DevicesController {
-  constructor(private readonly devicesService: DevicesService) {}
+  constructor(
+    private readonly devicesService: DevicesService,
+    private readonly auditService: AuditService,
+  ) {}
 
   @UseGuards(AuthGuard)
+  @Roles(Role.Admin)
   @Post()
   async addDevice(@Body() body: any): Promise<any> {
     return this.devicesService.addDevice(body);
   }
 
   @UseGuards(AuthGuard)
+  @Roles(Role.Admin)
   @Post('assign')
   async assignDevice(@Body() body: { deviceId: any; userId: any }) {
     return this.devicesService.assignDeviceToUser(body.deviceId, body.userId);
@@ -69,8 +78,50 @@ export class DevicesController {
     return this.devicesService.findDevicesWithApplication(id);
   }
 
+  @UseGuards(AgentGuard)
   @Post('/agent/data')
-  receiveData(@Body() body: any) {
-    return this.devicesService.updateScanInfoBySerialTag(body);
+  async receiveData(@Body() body: DeviceScanDto, @Req() req: any) {
+    const device = (req as any).agentDevice;
+    const result = await this.devicesService.updateScanInfoBySerialTag(body);
+    if (device?.id) {
+      await this.devicesService.markScanReceived(device.id);
+      await this.auditService.log('Device', device.id, 'agent_scan', {
+        ip: req.ip,
+        userAgent: req.headers['user-agent'],
+        serialNumber: body?.serialNumber ?? null,
+        sections: Object.keys(body ?? {}),
+      });
+    }
+    return result;
+  }
+
+  @UseGuards(AuthGuard)
+  @Roles(Role.Admin)
+  @Post('/:deviceId/agent/secret')
+  async rotateAgentSecret(
+    @Param('deviceId') deviceId: string,
+    @Req() req: any,
+  ) {
+    const actor = req?.user?.properties?.metadata?.id ?? req?.user?.id;
+    const { secret } = await this.devicesService.rotateAgentSecret(deviceId);
+    await this.auditService.log('Device', deviceId, 'agent_secret_rotated', {
+      actor,
+    });
+    return { secret };
+  }
+
+  @UseGuards(AuthGuard)
+  @Roles(Role.Admin)
+  @Post('/:deviceId/agent/secret/revoke')
+  async revokeAgentSecret(
+    @Param('deviceId') deviceId: string,
+    @Req() req: any,
+  ) {
+    const actor = req?.user?.properties?.metadata?.id ?? req?.user?.id;
+    await this.devicesService.revokeAgentSecret(deviceId);
+    await this.auditService.log('Device', deviceId, 'agent_secret_revoked', {
+      actor,
+    });
+    return { ok: true };
   }
 }

@@ -6,6 +6,7 @@ import { Histories } from 'src/entities/histories.entity';
 import { HistoryApprovers } from 'src/entities/historyApprovers.entity';
 import { HistoryComponents } from 'src/entities/historyComponents.entity';
 import { toCsv } from 'src/helpers/csv';
+import { AuditService } from './audit.service';
 
 export interface HistoryFeedQuery {
   limit?: number | string;
@@ -63,6 +64,8 @@ export class HistoriesService {
 
     @InjectRepository(HistoryComponents)
     private historyComponentsRepository: Repository<HistoryComponents>,
+
+    private readonly auditService: AuditService,
   ) {}
 
   async findAll(): Promise<Histories[]> {
@@ -285,6 +288,19 @@ export class HistoriesService {
 
       await this.historyApproversRepository.save(approversToSave);
     }
+
+    await this.auditService.log('History', historyId, 'created', {
+      historyId,
+      type: savedHistory.type,
+      userId: savedHistory.userId,
+      deviceId: savedHistory.deviceId,
+      ticket: savedHistory.ticket,
+      agent: savedHistory.agent,
+      isUserFault: savedHistory.isUserFault,
+      addedComponentsCount: history?.addedComponents?.length ?? 0,
+      removedComponentsCount: history?.removedComponents?.length ?? 0,
+      approversCount: history?.approvers?.length ?? 0,
+    });
 
     return savedHistory;
   }

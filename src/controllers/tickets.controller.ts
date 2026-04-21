@@ -17,6 +17,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { CreateTicketDto, GetTicketsQueryDto } from 'src/dto/tickets.dto';
 import { Tickets } from 'src/entities/tickets.entity';
 import { AuthGuard } from 'src/guards/authGuard.guard';
+import { Role, Roles } from 'src/decorators/roles.decorator';
 import { TicketsService } from 'src/services/tickets.service';
 
 @UseGuards(AuthGuard)
@@ -48,6 +49,7 @@ export class TicketsController {
     return this.ticketsService.getTicketCategories();
   }
 
+  @Roles(Role.Admin, Role.Helpdesk)
   @Patch('/categories')
   async updateTicketCategories(@Body() dto: any) {
     return this.ticketsService.updateTicketCategories(dto);
@@ -58,6 +60,7 @@ export class TicketsController {
     return this.ticketsService.getTicketById(id);
   }
 
+  @Roles(Role.Admin, Role.Helpdesk)
   @Patch(':id')
   async updateTicket(
     @Param('id') id: string,

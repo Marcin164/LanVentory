@@ -70,4 +70,19 @@ export class Devices {
 
   @Column({ type: 'jsonb', nullable: true })
   eventLogs: Record<string, any>;
+
+  @Column({ type: 'varchar', length: 64, nullable: true })
+  apiSecretHash: string | null;
+
+  @Column({ type: 'varchar', length: 64, nullable: true })
+  apiSecretHashPrev: string | null;
+
+  @Column({ type: 'timestamptz', nullable: true })
+  apiSecretRotatedAt: Date | null;
+
+  @Column({ type: 'timestamptz', nullable: true })
+  apiSecretPrevValidUntil: Date | null;
+
+  @Column({ type: 'timestamptz', nullable: true })
+  lastScanAt: Date | null;
 }

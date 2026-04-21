@@ -7,6 +7,7 @@ import {
 } from 'src/helpers/reportRegistry';
 import { withCache } from 'src/helpers/reportCache';
 import { toCsv } from 'src/helpers/csv';
+import { renderReportPdf } from 'src/helpers/pdf';
 
 @Injectable()
 export class ReportsService {
@@ -45,6 +46,22 @@ export class ReportsService {
     const csv = toCsv(Array.isArray(data) ? data : []);
     const meta = this.requireMeta(type);
     return { filename: `${meta.key}.csv`, csv };
+  }
+
+  async exportPdf(
+    type: string,
+    filters?: Record<string, any>,
+    generatedBy?: string,
+  ) {
+    const data = await this.generate(type, filters);
+    const meta = this.requireMeta(type);
+    const rows = Array.isArray(data) ? data : [];
+    const { buffer, sha256 } = await renderReportPdf(
+      meta.title ?? meta.key,
+      rows,
+      { generatedBy, generatedAt: new Date(), filters },
+    );
+    return { filename: `${meta.key}.pdf`, buffer, sha256 };
   }
 
   private requireMeta(type: string): ReportMeta {

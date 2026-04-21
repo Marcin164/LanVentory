@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AuditController } from 'src/controllers/audit.controller';
 import { CalendarController } from 'src/controllers/calendar.controller';
 import { SlaAdminController } from 'src/controllers/slaAdmin.controller';
 import { SlaDefinitionController } from 'src/controllers/slaDefinition.controller';
@@ -15,10 +14,9 @@ import { SlaEscalationInstance } from 'src/entities/slaEscalationInstance.entity
 import { SlaInstance } from 'src/entities/slaInstance.entity';
 import { SlaPause } from 'src/entities/slaPause.entity';
 import { SlaRule } from 'src/entities/slaRule.entity';
-import { SystemAuditLog } from 'src/entities/systemAuditLog.entity';
 
 import { Tickets } from 'src/entities/tickets.entity';
-import { AuditService } from 'src/services/audit.service';
+import { AuditModule } from './audit.module';
 import { BusinessTimeService } from 'src/services/businessTime.service';
 import { CalendarService } from 'src/services/calendar.service';
 import { EscalationActionService } from 'src/services/escalationAction.service';
@@ -53,8 +51,8 @@ import { SlaBreachWorker } from 'src/workers/slaBreach.worker';
 
       // potrzebne do akcji eskalacji
       Tickets,
-      SystemAuditLog,
     ]),
+    AuditModule,
   ],
   controllers: [
     // Runtime / monitoring
@@ -66,9 +64,6 @@ import { SlaBreachWorker } from 'src/workers/slaBreach.worker';
     SlaDefinitionController,
     SlaRuleController,
     SlaEscalationConfigController,
-
-    // Audit (jeśli nie ma osobnego AuditModule)
-    AuditController,
   ],
   providers: [
     // SLA runtime
@@ -94,8 +89,6 @@ import { SlaBreachWorker } from 'src/workers/slaBreach.worker';
     // Workers
     SlaBreachWorker,
 
-    // Audit
-    AuditService,
     SlaAdminService,
   ],
   exports: [SlaEngineService, SlaRuntimeService],

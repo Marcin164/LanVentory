@@ -13,6 +13,7 @@ import { TicketsApprovals } from 'src/entities/ticketsApprovals.entity';
 import { SlaEngineService } from './slaEngine.service';
 import { TicketActivity } from 'src/entities/ticketActivity.entity';
 import { AdminSettings } from 'src/entities/adminSettings.entity';
+import { AuditService } from './audit.service';
 import { randomUUID as nodeRandomUUID } from 'crypto';
 import {
   BadRequestException,
@@ -69,6 +70,7 @@ export class TicketsService {
 
     private readonly ticketsGateway: TicketsGateway,
     private readonly slaEngine: SlaEngineService,
+    private readonly auditService: AuditService,
   ) {
     if (!fs.existsSync(ATTACHMENT_DIR)) {
       fs.mkdirSync(ATTACHMENT_DIR, { recursive: true });
@@ -98,6 +100,17 @@ export class TicketsService {
 
     // 🔥 START SLA
     await this.slaEngine.createForTicket(saved);
+
+    await this.auditService.log('Ticket', saved.id, 'created', {
+      ticketId: saved.id,
+      number: saved.number,
+      type: saved.type,
+      requesterId: (dto as any).requesterId ?? null,
+      category: (dto as any).category ?? null,
+      priority: saved.priority,
+      impact: saved.impact,
+      urgency: saved.urgency,
+    });
 
     return saved;
   }
@@ -149,6 +162,21 @@ export class TicketsService {
           newValue: change.newValue,
         });
         savedActivities.push(activity);
+
+        await this.auditService.log(
+          'Ticket',
+          id,
+          'field_change',
+          {
+            ticketId: id,
+            field: change.field,
+            oldValue: change.oldValue,
+            newValue: change.newValue,
+            actor: userId ?? null,
+            activityId: activity.id,
+          },
+          manager,
+        );
       }
 
       // emit activities via websocket
