@@ -13,6 +13,7 @@ import { Request } from '@nestjs/common';
 import type { Response } from 'express';
 import { AuthGuard } from 'src/guards/authGuard.guard';
 import { HistoryAccessGuard } from 'src/guards/historyAccessGuard.guard';
+import { Role, Roles } from 'src/decorators/roles.decorator';
 import {
   HistoriesService,
   type HistoryFeedQuery,
@@ -46,6 +47,7 @@ export class HistoriesController {
     res.send(csv);
   }
 
+  @Roles(Role.Admin, Role.Helpdesk)
   @Post()
   async createHistory(@Body() body: any): Promise<any> {
     return this.historiesService.createHistory(body);

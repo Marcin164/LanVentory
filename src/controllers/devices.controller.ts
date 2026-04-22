@@ -7,6 +7,8 @@ import {
   Param,
   Query,
   UseGuards,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { AuthGuard } from 'src/guards/authGuard.guard';
 import { AgentGuard } from 'src/guards/agentGuard.guard';
@@ -79,6 +81,7 @@ export class DevicesController {
   }
 
   @UseGuards(AgentGuard)
+  @UsePipes(new ValidationPipe({ whitelist: false, transform: true }))
   @Post('/agent/data')
   async receiveData(@Body() body: DeviceScanDto, @Req() req: any) {
     const device = (req as any).agentDevice;

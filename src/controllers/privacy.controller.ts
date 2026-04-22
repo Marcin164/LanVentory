@@ -1,10 +1,11 @@
 import { Controller, Get, Param, Query, Req, UseGuards } from '@nestjs/common';
 import { AuthGuard } from 'src/guards/authGuard.guard';
+import { MfaGuard } from 'src/guards/mfaGuard.guard';
 import { Role, Roles } from 'src/decorators/roles.decorator';
 import { PrivacyService } from 'src/services/privacy.service';
 import { AuditService } from 'src/services/audit.service';
 
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, MfaGuard)
 @Roles(Role.Admin, Role.Dpo)
 @Controller('privacy')
 export class PrivacyController {

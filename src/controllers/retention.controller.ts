@@ -9,11 +9,12 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from 'src/guards/authGuard.guard';
+import { MfaGuard } from 'src/guards/mfaGuard.guard';
 import { Role, Roles } from 'src/decorators/roles.decorator';
 import { RetentionService } from 'src/services/retention.service';
 import { RetentionAction } from 'src/entities/retentionPolicy.entity';
 
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, MfaGuard)
 @Roles(Role.Admin, Role.Compliance)
 @Controller('retention')
 export class RetentionController {

@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Users } from 'src/entities/users.entity';
 import { RolesGuard } from 'src/guards/rolesGuard.guard';
 import { AdminGuard } from 'src/guards/adminGuard.guard';
+import { MfaGuard } from 'src/guards/mfaGuard.guard';
 
 @Global()
 @Module({
@@ -11,8 +12,9 @@ import { AdminGuard } from 'src/guards/adminGuard.guard';
   providers: [
     RolesGuard,
     AdminGuard,
+    MfaGuard,
     { provide: APP_GUARD, useClass: RolesGuard },
   ],
-  exports: [RolesGuard, AdminGuard],
+  exports: [RolesGuard, AdminGuard, MfaGuard],
 })
 export class AccessControlModule {}

@@ -10,11 +10,14 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AuthGuard } from 'src/guards/authGuard.guard';
+import { MfaGuard } from 'src/guards/mfaGuard.guard';
+import { Role, Roles } from 'src/decorators/roles.decorator';
 import { ActiveDirectoryService } from 'src/services/active-directory.service';
 import type { AdConfig } from 'src/services/active-directory.service';
 import { UsersService } from 'src/services/users.service';
 
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, MfaGuard)
+@Roles(Role.Admin)
 @Controller('active-directory')
 export class ActiveDirectoryController {
   constructor(

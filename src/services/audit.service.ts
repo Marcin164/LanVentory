@@ -3,8 +3,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { SystemAuditLog } from 'src/entities/systemAuditLog.entity';
 import { Repository, EntityManager } from 'typeorm';
 import { createHash } from 'crypto';
+import { AuditSinksService } from './auditSinks/orchestrator.service';
 
 export const AUDIT_SEQUENCE_NAME = 'system_audit_log_chain_seq';
+const AUDIT_ADVISORY_LOCK_ID = 0x7472696c;
 
 export type AuditListQuery = {
   entityType?: string;
@@ -64,6 +66,7 @@ export class AuditService {
   constructor(
     @InjectRepository(SystemAuditLog)
     private readonly repo: Repository<SystemAuditLog>,
+    private readonly sinks: AuditSinksService,
   ) {}
 
   /**
@@ -79,7 +82,9 @@ export class AuditService {
     manager?: EntityManager,
   ) {
     const run = async (em: EntityManager) => {
-      await em.query('SELECT pg_advisory_xact_lock(7472696c)');
+      await em.query('SELECT pg_advisory_xact_lock($1)', [
+        AUDIT_ADVISORY_LOCK_ID,
+      ]);
 
       const [{ nextval }] = await em.query(
         `SELECT nextval($1)::text AS nextval`,
@@ -129,8 +134,28 @@ export class AuditService {
       return row;
     };
 
-    if (manager) return run(manager);
-    return this.repo.manager.transaction(run);
+    const row = manager
+      ? await run(manager)
+      : await this.repo.manager.transaction(run);
+
+    // Sinks fire after commit in the non-nested case. Nested callers (passing
+    // manager) may emit before the outer txn commits — rare today; revisit if
+    // the outer rollback matters.
+    if (row) {
+      this.sinks.emit({
+        id: row.id,
+        sequence: String(row.sequence),
+        hash: row.hash,
+        prevHash: row.prevHash ?? null,
+        entityType: row.entityType,
+        entityId: row.entityId,
+        action: row.action,
+        metadata: row.metadata ?? null,
+        createdAt: row.createdAt,
+      });
+    }
+
+    return row;
   }
 
   async getForTicket(ticketId: string, action?: string) {

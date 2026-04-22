@@ -22,18 +22,22 @@ export class HistoryAccessGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest();
-    const userId: string | undefined =
-      req?.user?.properties?.metadata?.id ?? req?.user?.id;
+    const reqUser = req?.user;
+    const internalId: string | undefined = reqUser?.properties?.metadata?.id;
+    const authId: string | undefined = reqUser?.userId ?? reqUser?.id;
 
-    if (!userId) {
-      throw new ForbiddenException('User context missing');
+    let user: Users | null = null;
+    if (internalId) {
+      user = await this.usersRepository.findOneBy({ id: internalId });
+    }
+    if (!user && authId) {
+      user = await this.usersRepository.findOneBy({ authUserId: authId });
     }
 
-    const user = await this.usersRepository.findOneBy({ id: userId });
-    if (
-      !user ||
-      (!user.isAdmin && !user.isApprover && !user.isAuditor)
-    ) {
+    if (!user) {
+      throw new ForbiddenException('User context missing');
+    }
+    if (!user.isAdmin && !user.isApprover && !user.isAuditor) {
       throw new ForbiddenException(
         'History feed access requires admin, approver or auditor role',
       );

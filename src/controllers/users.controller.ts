@@ -12,6 +12,7 @@ import {
 } from '@nestjs/common';
 import { Request } from '@nestjs/common';
 import { AuthGuard } from 'src/guards/authGuard.guard';
+import { MfaGuard } from 'src/guards/mfaGuard.guard';
 import { Role, Roles } from 'src/decorators/roles.decorator';
 import { UsersService } from 'src/services/users.service';
 import { ActiveDirectoryService } from 'src/services/active-directory.service';
@@ -23,7 +24,7 @@ export class UsersController {
     private readonly adService: ActiveDirectoryService,
   ) {}
 
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, MfaGuard)
   @Roles(Role.Admin)
   @Get('/ad/user')
   async syncADUser(@Query('username') username: string) {
@@ -38,28 +39,28 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, MfaGuard)
   @Roles(Role.Admin)
   @Post()
   async insertOne(@Body() body: any): Promise<any> {
     return this.usersService.insertOne(body);
   }
 
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, MfaGuard)
   @Roles(Role.Admin)
   @Post('/many')
   async insertMany(@Body() body: any): Promise<any> {
     return this.usersService.insertMany(body);
   }
 
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, MfaGuard)
   @Roles(Role.Admin)
   @Delete(':id')
   async delete(@Param('id') id: string): Promise<any> {
     return this.usersService.delete(id);
   }
 
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, MfaGuard)
   @Roles(Role.Admin)
   @Patch(':id')
   async update(@Body() body: any, @Param('id') id: string): Promise<any> {

@@ -7,12 +7,13 @@ import {
   AUDIT_SEQUENCE_NAME,
   AuditService,
 } from 'src/services/audit.service';
+import { AuditSinksService } from 'src/services/auditSinks/orchestrator.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([SystemAuditLog])],
   controllers: [AuditController],
-  providers: [AuditService],
-  exports: [AuditService],
+  providers: [AuditService, AuditSinksService],
+  exports: [AuditService, AuditSinksService],
 })
 export class AuditModule implements OnModuleInit {
   private readonly logger = new Logger(AuditModule.name);

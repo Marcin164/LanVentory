@@ -1,18 +1,28 @@
 import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
 
 import { AuthGuard } from 'src/guards/authGuard.guard';
+import { MfaGuard } from 'src/guards/mfaGuard.guard';
 import { Role, Roles } from 'src/decorators/roles.decorator';
 import { AuditService } from 'src/services/audit.service';
+import { AuditSinksService } from 'src/services/auditSinks/orchestrator.service';
 
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, MfaGuard)
 @Roles(Role.Admin, Role.Auditor)
 @Controller('audit')
 export class AuditController {
-  constructor(private readonly auditService: AuditService) {}
+  constructor(
+    private readonly auditService: AuditService,
+    private readonly sinks: AuditSinksService,
+  ) {}
 
   @Get('verify')
   async verify() {
     return this.auditService.verifyChain();
+  }
+
+  @Get('sinks')
+  sinksStatus() {
+    return this.sinks.status();
   }
 
   @Get('ticket/:ticketId')

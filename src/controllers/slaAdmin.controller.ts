@@ -4,7 +4,7 @@ import { Role, Roles } from 'src/decorators/roles.decorator';
 import { SlaAdminService } from 'src/services/slaAdmin.service';
 
 @UseGuards(AuthGuard)
-@Roles(Role.Admin)
+@Roles(Role.Admin, Role.Compliance, Role.Auditor)
 @Controller('sla/admin')
 export class SlaAdminController {
   constructor(private readonly adminService: SlaAdminService) {}

@@ -8,13 +8,14 @@ import {
 } from '@nestjs/common';
 import type { Response } from 'express';
 import { AuthGuard } from 'src/guards/authGuard.guard';
+import { MfaGuard } from 'src/guards/mfaGuard.guard';
 import { Role, Roles } from 'src/decorators/roles.decorator';
 import {
   EvidenceInclude,
   EvidencePackService,
 } from 'src/services/evidencePack.service';
 
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, MfaGuard)
 @Roles(Role.Admin, Role.Compliance, Role.Auditor)
 @Controller('evidence')
 export class EvidenceController {

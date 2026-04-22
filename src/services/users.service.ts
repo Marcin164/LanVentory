@@ -1,12 +1,35 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { initBaseAuth } from '@propelauth/node';
 import { Users } from 'src/entities/users.entity';
 import { uuidv4 } from 'src/helpers/uuidv4';
-// import { propelAuth } from 'src/helpers/propelAuthClient';
+import { validateSod } from 'src/config/sod';
+
+const ROLE_FIELDS = [
+  'isAdmin',
+  'isApprover',
+  'isAuditor',
+  'isCompliance',
+  'isHelpdesk',
+  'isDpo',
+] as const;
+
+const { logoutAllUserSessions } = initBaseAuth({
+  authUrl: 'https://3187297.propelauthtest.com',
+  apiKey:
+    '0748e2c0b528c828501effb1d3e42bced3af1a9b51047c586a101715ce367db978f52483b7d686bf22438f029911a9b7',
+});
 
 @Injectable()
 export class UsersService {
+  private readonly logger = new Logger(UsersService.name);
+
   constructor(
     @InjectRepository(Users)
     private usersRepository: Repository<Users>,
@@ -41,16 +64,45 @@ export class UsersService {
   }
 
   async update(dto: any, id: string): Promise<any> {
-    const user = await this.usersRepository.preload({
-      id,
-      ...dto,
-    });
+    const existing = await this.usersRepository.findOneBy({ id });
+    if (!existing) {
+      throw new NotFoundException(`User with id ${id} not found`);
+    }
 
+    const merged = { ...existing, ...dto };
+    const conflicts = validateSod(merged);
+    if (conflicts.length > 0) {
+      throw new BadRequestException({
+        message: 'Role assignment violates segregation of duties',
+        conflicts,
+      });
+    }
+
+    const user = await this.usersRepository.preload({ id, ...dto });
     if (!user) {
       throw new NotFoundException(`User with id ${id} not found`);
     }
 
-    return this.usersRepository.save(user);
+    const saved = await this.usersRepository.save(user);
+
+    const roleChanged = ROLE_FIELDS.some(
+      (f) => Boolean(existing[f]) !== Boolean(saved[f]),
+    );
+
+    if (roleChanged && existing.authUserId) {
+      try {
+        await logoutAllUserSessions(existing.authUserId);
+        this.logger.log(
+          `Forced logout of all sessions for user ${id} (authUserId=${existing.authUserId}) after role change`,
+        );
+      } catch (err) {
+        this.logger.warn(
+          `Failed to logout sessions for user ${id}: ${(err as Error).message}`,
+        );
+      }
+    }
+
+    return saved;
   }
 
   async delete(id: string): Promise<any> {
@@ -200,6 +252,7 @@ export class UsersService {
         'users.name AS name',
         'users.surname AS surname',
         'users.username AS username',
+        'users.email AS email',
         'MIN(devices.assetName) AS assetName',
         'MIN(devices.model) AS model',
         'MIN(devices.id) AS deviceId',
@@ -212,11 +265,18 @@ export class UsersService {
         'users.streetAddress AS street',
         'users.postalCode AS postalCode',
         'users.manager AS manager',
+        'users.isAdmin AS "isAdmin"',
+        'users.isApprover AS "isApprover"',
+        'users.isAuditor AS "isAuditor"',
+        'users.isCompliance AS "isCompliance"',
+        'users.isHelpdesk AS "isHelpdesk"',
+        'users.isDpo AS "isDpo"',
       ])
       .groupBy('users.id')
       .addGroupBy('users.name')
       .addGroupBy('users.surname')
       .addGroupBy('users.username')
+      .addGroupBy('users.email')
       .addGroupBy('users.department')
       .addGroupBy('users.office')
       .addGroupBy('users.country')
@@ -226,6 +286,12 @@ export class UsersService {
       .addGroupBy('users.streetAddress')
       .addGroupBy('users.postalCode')
       .addGroupBy('users.manager')
+      .addGroupBy('users.isAdmin')
+      .addGroupBy('users.isApprover')
+      .addGroupBy('users.isAuditor')
+      .addGroupBy('users.isCompliance')
+      .addGroupBy('users.isHelpdesk')
+      .addGroupBy('users.isDpo')
       .orderBy('users.surname', 'ASC')
       .offset((page - 1) * limit)
       .limit(limit);

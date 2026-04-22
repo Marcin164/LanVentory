@@ -4,8 +4,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { SlaInstance } from 'src/entities/slaInstance.entity';
 import { SlaEngineService } from 'src/services/slaEngine.service';
 import { AuthGuard } from 'src/guards/authGuard.guard';
+import { Role, Roles } from 'src/decorators/roles.decorator';
 
 @UseGuards(AuthGuard)
+@Roles(Role.Admin, Role.Compliance, Role.Auditor)
 @Controller('sla/admin')
 export class SlaAdminController {
   constructor(
@@ -33,6 +35,7 @@ export class SlaAdminController {
     });
   }
 
+  @Roles(Role.Admin)
   @Post('recalculate/:ticketId')
   async recalc(@Param('ticketId') ticketId: string) {
     await this.engine.handleResolved({ id: ticketId } as any);
