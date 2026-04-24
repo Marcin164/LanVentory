@@ -8,8 +8,12 @@ import { TicketsComments } from 'src/entities/ticketsComments.entity';
 import { TicketsApprovals } from 'src/entities/ticketsApprovals.entity';
 import { TicketActivity } from 'src/entities/ticketActivity.entity';
 import { AdminSettings } from 'src/entities/adminSettings.entity';
+import { SlaInstance } from 'src/entities/slaInstance.entity';
+import { TicketTemplate } from 'src/entities/ticketTemplate.entity';
 import { SlaModule } from './sla.module';
 import { AuditModule } from './audit.module';
+import { TicketTemplateService } from 'src/services/ticketTemplate.service';
+import { TicketTemplateController } from 'src/controllers/ticketTemplate.controller';
 
 @Module({
   imports: [
@@ -19,12 +23,14 @@ import { AuditModule } from './audit.module';
       TicketsApprovals,
       TicketActivity,
       AdminSettings,
+      SlaInstance,
+      TicketTemplate,
     ]),
     SlaModule,
     AuditModule,
   ],
-  controllers: [TicketsController],
-  providers: [TicketsService, TicketsGateway],
+  controllers: [TicketsController, TicketTemplateController],
+  providers: [TicketsService, TicketsGateway, TicketTemplateService],
   exports: [TicketsGateway],
 })
 export class TicketsModule {}

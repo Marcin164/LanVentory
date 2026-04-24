@@ -82,4 +82,10 @@ export class Users {
 
   @Column({ nullable: true })
   pwdLastSet: Date;
+
+  @Column({ type: 'timestamptz', nullable: true })
+  erasedAt: Date | null;
+
+  @Column({ type: 'text', nullable: true })
+  erasureReason: string | null;
 }

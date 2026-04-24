@@ -13,6 +13,7 @@ import { TicketsApprovals } from 'src/entities/ticketsApprovals.entity';
 import { SlaEngineService } from './slaEngine.service';
 import { TicketActivity } from 'src/entities/ticketActivity.entity';
 import { AdminSettings } from 'src/entities/adminSettings.entity';
+import { SlaInstance } from 'src/entities/slaInstance.entity';
 import { AuditService } from './audit.service';
 import { randomUUID as nodeRandomUUID } from 'crypto';
 import {
@@ -67,6 +68,9 @@ export class TicketsService {
 
     @InjectRepository(AdminSettings)
     private adminSettingsRepository: Repository<AdminSettings>,
+
+    @InjectRepository(SlaInstance)
+    private slaInstanceRepository: Repository<SlaInstance>,
 
     private readonly ticketsGateway: TicketsGateway,
     private readonly slaEngine: SlaEngineService,
@@ -277,6 +281,46 @@ export class TicketsService {
       .take(limit);
 
     const [data, total] = await qb.getManyAndCount();
+
+    // Attach a compact SLA view per ticket — the earliest non-breached
+    // dueAt, or the most severe breach if all are breached. Used by the
+    // list UI to render a "breaches in X" column.
+    if (data.length > 0) {
+      const ids = data.map((t) => t.id);
+      const slas = await this.slaInstanceRepository
+        .createQueryBuilder('s')
+        .where('s.ticket_id IN (:...ids)', { ids })
+        .getMany();
+
+      const byTicket = new Map<string, SlaInstance[]>();
+      for (const s of slas) {
+        const list = byTicket.get(s.ticketId) ?? [];
+        list.push(s);
+        byTicket.set(s.ticketId, list);
+      }
+
+      for (const ticket of data) {
+        const list = byTicket.get(ticket.id) ?? [];
+        if (list.length === 0) {
+          (ticket as any).sla = null;
+          continue;
+        }
+        const active = list.filter((s) => !s.breached && !s.paused);
+        const chosen =
+          active.length > 0
+            ? active.reduce((a, b) =>
+                a.dueAt.getTime() < b.dueAt.getTime() ? a : b,
+              )
+            : list.reduce((a, b) =>
+                a.dueAt.getTime() < b.dueAt.getTime() ? a : b,
+              );
+        (ticket as any).sla = {
+          dueAt: chosen.dueAt,
+          paused: chosen.paused,
+          breached: list.some((s) => s.breached),
+        };
+      }
+    }
 
     return {
       data,

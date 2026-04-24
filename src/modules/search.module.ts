@@ -6,9 +6,12 @@ import { Users } from 'src/entities/users.entity';
 import { Devices } from 'src/entities/devices.entity';
 import { Tickets } from 'src/entities/tickets.entity';
 import { Histories } from 'src/entities/histories.entity';
+import { Applications } from 'src/entities/applications.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Users, Devices, Tickets, Histories])],
+  imports: [
+    TypeOrmModule.forFeature([Users, Devices, Tickets, Histories, Applications]),
+  ],
   controllers: [SearchController],
   providers: [SearchService],
 })

@@ -53,6 +53,18 @@ import { PrivacyModule } from './modules/privacy.module';
 import { RetentionPolicy } from './entities/retentionPolicy.entity';
 import { RetentionModule } from './modules/retention.module';
 import { EvidenceModule } from './modules/evidence.module';
+import { LegalHold } from './entities/legalHold.entity';
+import { CveMatch } from './entities/cveMatch.entity';
+import { CveModule } from './modules/cve.module';
+import { ComplianceRule } from './entities/complianceRule.entity';
+import { ComplianceResult } from './entities/complianceResult.entity';
+import { ComplianceModule } from './modules/compliance.module';
+import { DeviceTag } from './entities/deviceTag.entity';
+import { DeviceTagMap } from './entities/deviceTagMap.entity';
+import { AgentTask } from './entities/agentTask.entity';
+import { DeviceScan } from './entities/deviceScan.entity';
+import { FleetModule } from './modules/fleet.module';
+import { TicketTemplate } from './entities/ticketTemplate.entity';
 
 @Module({
   imports: [
@@ -98,6 +110,15 @@ import { EvidenceModule } from './modules/evidence.module';
         KnowledgeSpace,
         KnowledgeArticle,
         RetentionPolicy,
+        LegalHold,
+        CveMatch,
+        ComplianceRule,
+        ComplianceResult,
+        DeviceTag,
+        DeviceTagMap,
+        AgentTask,
+        DeviceScan,
+        TicketTemplate,
       ],
       synchronize: true,
     }),
@@ -146,6 +167,9 @@ import { EvidenceModule } from './modules/evidence.module';
     PrivacyModule,
     RetentionModule,
     EvidenceModule,
+    CveModule,
+    ComplianceModule,
+    FleetModule,
     ReportsModule,
     SearchModule,
     AssignmentGroupsModule,

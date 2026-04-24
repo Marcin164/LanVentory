@@ -5,10 +5,11 @@ import { Users } from 'src/entities/users.entity';
 import { Devices } from 'src/entities/devices.entity';
 import { Tickets } from 'src/entities/tickets.entity';
 import { Histories } from 'src/entities/histories.entity';
+import { Applications } from 'src/entities/applications.entity';
 
 export type SearchResultItem = {
   id: string;
-  type: 'user' | 'device' | 'ticket' | 'history';
+  type: 'user' | 'device' | 'ticket' | 'history' | 'application';
   title: string;
   subtitle?: string;
   url: string;
@@ -23,21 +24,56 @@ export class SearchService {
     @InjectRepository(Devices) private devicesRepo: Repository<Devices>,
     @InjectRepository(Tickets) private ticketsRepo: Repository<Tickets>,
     @InjectRepository(Histories) private historiesRepo: Repository<Histories>,
+    @InjectRepository(Applications)
+    private applicationsRepo: Repository<Applications>,
   ) {}
+
+  /**
+   * Substring match inside jsonb payloads. Cheap but thorough: cast each
+   * jsonb column to text and ILIKE. Only fires when the term is >= 4
+   * chars — short needles would match most scans (e.g. searching "exe"
+   * would hit every install).
+   */
+  private async searchJsonbContents(term: string): Promise<Devices[]> {
+    if (term.length < 4) return [];
+    const like = `%${term}%`;
+    return this.devicesRepo
+      .createQueryBuilder('d')
+      .where('d.software::text ILIKE :like', { like })
+      .orWhere('d.hardware::text ILIKE :like', { like })
+      .orWhere('d.peripherals::text ILIKE :like', { like })
+      .orWhere('d.network::text ILIKE :like', { like })
+      .limit(LIMIT)
+      .getMany();
+  }
 
   async searchAll(q: string): Promise<{
     users: SearchResultItem[];
     devices: SearchResultItem[];
     tickets: SearchResultItem[];
     histories: SearchResultItem[];
+    applications: SearchResultItem[];
   }> {
     const term = (q || '').trim();
     if (!term) {
-      return { users: [], devices: [], tickets: [], histories: [] };
+      return {
+        users: [],
+        devices: [],
+        tickets: [],
+        histories: [],
+        applications: [],
+      };
     }
     const like = `%${term}%`;
 
-    const [users, devices, tickets, histories] = await Promise.all([
+    const [
+      users,
+      devicesStructured,
+      devicesJsonb,
+      tickets,
+      histories,
+      applications,
+    ] = await Promise.all([
       this.usersRepo.find({
         where: [
           { name: ILike(like) },
@@ -57,6 +93,7 @@ export class SearchService {
         ],
         take: LIMIT,
       }),
+      this.searchJsonbContents(term),
       this.ticketsRepo.find({
         where: [
           { description: ILike(like) },
@@ -74,7 +111,21 @@ export class SearchService {
         ],
         take: LIMIT,
       }),
+      this.applicationsRepo
+        .createQueryBuilder('a')
+        .where('a.nameKey ILIKE :like', { like: `%${term.toLowerCase()}%` })
+        .orWhere('a.publisherKey ILIKE :like', {
+          like: `%${term.toLowerCase()}%`,
+        })
+        .limit(LIMIT)
+        .getMany(),
     ]);
+
+    // Merge structured + jsonb hits, dedup by id, cap at LIMIT.
+    const devicesMap = new Map<string, Devices>();
+    for (const d of devicesStructured) devicesMap.set(d.id, d);
+    for (const d of devicesJsonb) if (!devicesMap.has(d.id)) devicesMap.set(d.id, d);
+    const devices = Array.from(devicesMap.values()).slice(0, LIMIT);
 
     return {
       users: users.map((u) => ({
@@ -108,6 +159,13 @@ export class SearchService {
         url: h.deviceId
           ? `/admin/devices/${h.deviceId}/history`
           : `/admin/helpdesk`,
+      })),
+      applications: applications.map((a) => ({
+        id: a.id,
+        type: 'application' as const,
+        title: a.name,
+        subtitle: a.publisher ?? undefined,
+        url: `/admin/reports/devices?applicationId=${a.id}`,
       })),
     };
   }

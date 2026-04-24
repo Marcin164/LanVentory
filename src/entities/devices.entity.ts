@@ -5,8 +5,19 @@ import {
   JoinColumn,
   ManyToMany,
   ManyToOne,
+  CreateDateColumn,
 } from 'typeorm';
 import { Users } from './users.entity';
+
+export enum DeviceLifecycle {
+  PROCUREMENT = 'procurement',
+  ACTIVE = 'active',
+  IN_REPAIR = 'in_repair',
+  IN_STORAGE = 'in_storage',
+  RETIRED = 'retired',
+  DISPOSED = 'disposed',
+  LOST = 'lost',
+}
 
 @Entity()
 export class Devices {
@@ -85,4 +96,49 @@ export class Devices {
 
   @Column({ type: 'timestamptz', nullable: true })
   lastScanAt: Date | null;
+
+  @CreateDateColumn({ type: 'timestamptz' })
+  createdAt: Date;
+
+  // ---- Asset lifecycle ----
+
+  @Column({
+    type: 'enum',
+    enum: DeviceLifecycle,
+    default: DeviceLifecycle.ACTIVE,
+  })
+  lifecycle: DeviceLifecycle;
+
+  @Column({ type: 'text', nullable: true })
+  lifecycleNote: string | null;
+
+  @Column({ type: 'date', nullable: true })
+  purchaseDate: string | null;
+
+  @Column({ type: 'numeric', precision: 12, scale: 2, nullable: true })
+  purchasePrice: string | null;
+
+  @Column({ type: 'varchar', length: 8, nullable: true })
+  purchaseCurrency: string | null;
+
+  @Column({ type: 'varchar', length: 128, nullable: true })
+  vendor: string | null;
+
+  @Column({ type: 'varchar', length: 128, nullable: true })
+  purchaseOrder: string | null;
+
+  @Column({ type: 'date', nullable: true })
+  warrantyStart: string | null;
+
+  @Column({ type: 'date', nullable: true })
+  warrantyEnd: string | null;
+
+  @Column({ type: 'date', nullable: true })
+  retiredAt: string | null;
+
+  @Column({ type: 'date', nullable: true })
+  disposedAt: string | null;
+
+  @Column({ type: 'varchar', length: 128, nullable: true })
+  disposalMethod: string | null;
 }
