@@ -65,6 +65,9 @@ import { AgentTask } from './entities/agentTask.entity';
 import { DeviceScan } from './entities/deviceScan.entity';
 import { FleetModule } from './modules/fleet.module';
 import { TicketTemplate } from './entities/ticketTemplate.entity';
+import { TicketAutoTagRule } from './entities/ticketAutoTagRule.entity';
+import { Notification } from './entities/notification.entity';
+import { NotificationModule } from './modules/notification.module';
 
 @Module({
   imports: [
@@ -119,6 +122,8 @@ import { TicketTemplate } from './entities/ticketTemplate.entity';
         AgentTask,
         DeviceScan,
         TicketTemplate,
+        TicketAutoTagRule,
+        Notification,
       ],
       synchronize: true,
     }),
@@ -174,6 +179,7 @@ import { TicketTemplate } from './entities/ticketTemplate.entity';
     SearchModule,
     AssignmentGroupsModule,
     KnowledgeModule,
+    NotificationModule,
   ],
   controllers: [],
   providers: [],

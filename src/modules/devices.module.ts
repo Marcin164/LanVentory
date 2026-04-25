@@ -14,6 +14,7 @@ import { DeviceTagsService } from 'src/services/deviceTags.service';
 import { AgentTaskService } from 'src/services/agentTask.service';
 import { DeviceScanService } from 'src/services/deviceScan.service';
 import { DeviceReportService } from 'src/services/deviceReport.service';
+import { RemoteAssistService } from 'src/services/remoteAssist.service';
 import { AgentTaskWorker } from 'src/workers/agentTask.worker';
 import { CveModule } from './cve.module';
 import { AgentGuard } from 'src/guards/agentGuard.guard';
@@ -43,6 +44,7 @@ import { ComplianceModule } from './compliance.module';
     AgentTaskService,
     DeviceScanService,
     DeviceReportService,
+    RemoteAssistService,
     AgentTaskWorker,
     AgentGuard,
   ],

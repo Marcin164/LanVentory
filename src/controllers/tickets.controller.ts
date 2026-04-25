@@ -49,10 +49,60 @@ export class TicketsController {
     return this.ticketsService.getTicketCategories();
   }
 
+  @Get('/agent-stats')
+  async getAgentStats(@Req() req: any) {
+    const userId = req?.user?.properties?.metadata?.id;
+    return this.ticketsService.getAgentStats(userId);
+  }
+
   @Roles(Role.Admin, Role.Helpdesk)
   @Patch('/categories')
   async updateTicketCategories(@Body() dto: any) {
     return this.ticketsService.updateTicketCategories(dto);
+  }
+
+  @Get('/by-requester/:userId')
+  async getByRequester(
+    @Param('userId') userId: string,
+    @Query('limit') limit?: string,
+  ) {
+    return this.ticketsService.getTicketsByRequester(
+      userId,
+      limit ? Number(limit) : 10,
+    );
+  }
+
+  @Get('/:id/similar')
+  async getSimilar(
+    @Param('id') id: string,
+    @Query('limit') limit?: string,
+  ) {
+    return this.ticketsService.getSimilarResolvedTickets(
+      id,
+      limit ? Number(limit) : 5,
+    );
+  }
+
+  @Get('/by-device/:deviceId')
+  async getByDevice(
+    @Param('deviceId') deviceId: string,
+    @Query('limit') limit?: string,
+  ) {
+    return this.ticketsService.getTicketsByDevice(
+      deviceId,
+      limit ? Number(limit) : 10,
+    );
+  }
+
+  @Roles(Role.Admin, Role.Helpdesk)
+  @Post(':id/link')
+  async linkTicket(
+    @Param('id') id: string,
+    @Body() body: { parentTicketId: string | null },
+    @Req() req: any,
+  ) {
+    const userId = req?.user?.properties?.metadata?.id;
+    return this.ticketsService.linkTicket(id, body.parentTicketId, userId);
   }
 
   @Get(':id')

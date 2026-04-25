@@ -74,6 +74,9 @@ export class Users {
   @Column({ nullable: true, default: false })
   isDpo: boolean;
 
+  @Column({ nullable: true, default: false })
+  isVip: boolean;
+
   @Column({ type: 'jsonb', nullable: true })
   memberOf: Record<string, any>;
 

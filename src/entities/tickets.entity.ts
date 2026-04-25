@@ -133,6 +133,16 @@ export class Tickets {
   @Column({ nullable: true })
   closureNotes: string;
 
+  @Column({ type: 'uuid', nullable: true })
+  parentTicketId: string;
+
+  @ManyToOne(() => Tickets, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'parentTicketId' })
+  parent: Tickets;
+
+  @OneToMany(() => Tickets, (t) => t.parent)
+  children: Tickets[];
+
   @OneToMany(() => TicketsComments, (comment) => comment.ticket)
   comments: TicketsComments[];
 

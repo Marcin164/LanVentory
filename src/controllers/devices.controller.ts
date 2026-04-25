@@ -21,6 +21,7 @@ import { DevicesService } from 'src/services/devices.service';
 import { DeviceTagsService } from 'src/services/deviceTags.service';
 import { AgentTaskService } from 'src/services/agentTask.service';
 import { DeviceReportService } from 'src/services/deviceReport.service';
+import { RemoteAssistService } from 'src/services/remoteAssist.service';
 import { AuditService } from 'src/services/audit.service';
 import { DeviceScanDto } from 'src/dto/devices.dto';
 import { AgentTaskType } from 'src/entities/agentTask.entity';
@@ -32,6 +33,7 @@ export class DevicesController {
     private readonly tagsService: DeviceTagsService,
     private readonly agentTasks: AgentTaskService,
     private readonly deviceReport: DeviceReportService,
+    private readonly remoteAssist: RemoteAssistService,
     private readonly auditService: AuditService,
   ) {}
 
@@ -115,6 +117,30 @@ export class DevicesController {
     }
 
     return { ok: true, deviceId: device.id, software };
+  }
+
+  @UseGuards(AuthGuard)
+  @Roles(Role.Admin, Role.Helpdesk)
+  @Post('/:deviceId/remote-session')
+  async startRemoteSession(
+    @Param('deviceId') deviceId: string,
+    @Body() body: { ticketId?: string | null },
+    @Req() req: any,
+  ) {
+    const actorId =
+      req?.user?.properties?.metadata?.id ?? req?.user?.id ?? 'unknown';
+    return this.remoteAssist.startSession({
+      deviceId,
+      actorId,
+      ticketId: body?.ticketId ?? null,
+    });
+  }
+
+  @UseGuards(AuthGuard)
+  @Roles(Role.Admin, Role.Helpdesk)
+  @Get('/remote-session/status')
+  remoteSessionStatus() {
+    return { configured: this.remoteAssist.isConfigured() };
   }
 
   @UseGuards(AuthGuard)
