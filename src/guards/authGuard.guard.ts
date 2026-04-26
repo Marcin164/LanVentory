@@ -7,14 +7,8 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 
-import { initBaseAuth } from '@propelauth/node';
 import { Request } from 'express';
-
-const { validateAccessTokenAndGetUserClass } = initBaseAuth({
-  authUrl: 'https://3187297.propelauthtest.com'!,
-  apiKey:
-    '0748e2c0b528c828501effb1d3e42bced3af1a9b51047c586a101715ce367db978f52483b7d686bf22438f029911a9b7'!,
-});
+import { validateAccessTokenAndGetUserClass } from 'src/helpers/propelAuthClient';
 
 @Injectable()
 export class AuthGuard implements CanActivate {

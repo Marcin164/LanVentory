@@ -8,19 +8,13 @@ import {
 import { Reflector } from '@nestjs/core';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { initBaseAuth } from '@propelauth/node';
 import { Users } from 'src/entities/users.entity';
 import {
   Role,
   ROLES_KEY,
   userHasAnyRole,
 } from 'src/decorators/roles.decorator';
-
-const { validateAccessTokenAndGetUserClass } = initBaseAuth({
-  authUrl: 'https://3187297.propelauthtest.com',
-  apiKey:
-    '0748e2c0b528c828501effb1d3e42bced3af1a9b51047c586a101715ce367db978f52483b7d686bf22438f029911a9b7',
-});
+import { validateAccessTokenAndGetUserClass } from 'src/helpers/propelAuthClient';
 
 /**
  * Reads `@Roles(...)` metadata and grants access if the current user has any of

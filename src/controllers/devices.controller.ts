@@ -14,6 +14,7 @@ import {
 import { DeviceLifecycle } from 'src/entities/devices.entity';
 import { AuthGuard } from 'src/guards/authGuard.guard';
 import { AgentGuard } from 'src/guards/agentGuard.guard';
+import { idempotencyCache } from 'src/helpers/idempotencyCache';
 import { Role, Roles } from 'src/decorators/roles.decorator';
 import type { Response } from 'express';
 import { Res } from '@nestjs/common';
@@ -98,6 +99,26 @@ export class DevicesController {
   @Post('/agent/data')
   async receiveData(@Body() body: DeviceScanDto, @Req() req: any) {
     const device = (req as any).agentDevice;
+
+    // Idempotency — agent retries (network glitch) shouldn't double-write
+    // scan history or audit. We accept either an explicit
+    // X-Idempotency-Key header or fall back to the HMAC nonce which is
+    // already required and unique per request.
+    const idempotencyKey =
+      (req.headers['x-idempotency-key'] as string | undefined) ??
+      (req.headers['x-nonce'] as string | undefined) ??
+      null;
+
+    if (idempotencyKey) {
+      const cached = idempotencyCache.get<unknown>(
+        `agent-scan:${device.id}`,
+        idempotencyKey,
+      );
+      if (cached) {
+        return cached;
+      }
+    }
+
     const { device: updated, serialChanged, software } =
       await this.devicesService.recordScan(device, body);
 
@@ -116,7 +137,15 @@ export class DevicesController {
       });
     }
 
-    return { ok: true, deviceId: device.id, software };
+    const response = { ok: true, deviceId: device.id, software };
+    if (idempotencyKey) {
+      idempotencyCache.put(
+        `agent-scan:${device.id}`,
+        idempotencyKey,
+        response,
+      );
+    }
+    return response;
   }
 
   @UseGuards(AuthGuard)

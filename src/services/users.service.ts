@@ -6,10 +6,10 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { initBaseAuth } from '@propelauth/node';
 import { Users } from 'src/entities/users.entity';
 import { uuidv4 } from 'src/helpers/uuidv4';
 import { validateSod } from 'src/config/sod';
+import { logoutAllUserSessions } from 'src/helpers/propelAuthClient';
 
 const ROLE_FIELDS = [
   'isAdmin',
@@ -19,12 +19,6 @@ const ROLE_FIELDS = [
   'isHelpdesk',
   'isDpo',
 ] as const;
-
-const { logoutAllUserSessions } = initBaseAuth({
-  authUrl: 'https://3187297.propelauthtest.com',
-  apiKey:
-    '0748e2c0b528c828501effb1d3e42bced3af1a9b51047c586a101715ce367db978f52483b7d686bf22438f029911a9b7',
-});
 
 @Injectable()
 export class UsersService {

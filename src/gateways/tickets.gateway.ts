@@ -10,9 +10,18 @@ import { Server, Socket } from 'socket.io';
 
 type Viewer = { userId: string; label: string };
 
+// CORS for the WebSocket transport mirrors the REST CORS allow-list.
+// Empty CORS_ORIGINS disables cross-origin entirely.
+const wsOrigins = (() => {
+  const raw = process.env.CORS_ORIGINS?.trim();
+  if (!raw) return false;
+  return raw.split(',').map((s) => s.trim()).filter(Boolean);
+})();
+
 @WebSocketGateway({
   cors: {
-    origin: '*', // później ogranicz
+    origin: wsOrigins,
+    credentials: true,
   },
 })
 export class TicketsGateway implements OnGatewayDisconnect {

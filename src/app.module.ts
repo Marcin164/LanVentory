@@ -39,6 +39,10 @@ import { AuditModule } from './modules/audit.module';
 import { SlaEscalationInstance } from './entities/slaEscalationInstance.entity';
 import { SlaEscalationDefinition } from './entities/slaEscalationDefinition.entity';
 import { ScheduleModule } from '@nestjs/schedule';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { RequestLoggingInterceptor } from './interceptors/requestLogging.interceptor';
+import { HealthController } from './controllers/health.controller';
 import { SystemAuditLog } from './entities/systemAuditLog.entity';
 import { ReportsModule } from './modules/reports.module';
 import { SearchModule } from './modules/search.module';
@@ -73,16 +77,17 @@ import { NotificationModule } from './modules/notification.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: '.env',
       load: [adConfig],
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'Root',
-      password: '12345678',
-      database: 'AssetManager',
-      schema: 'public',
+      host: process.env.DB_HOST || 'localhost',
+      port: Number(process.env.DB_PORT) || 5432,
+      username: process.env.DB_USERNAME,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
+      schema: process.env.DB_SCHEMA || 'public',
       entities: [
         Users,
         Devices,
@@ -125,7 +130,9 @@ import { NotificationModule } from './modules/notification.module';
         TicketAutoTagRule,
         Notification,
       ],
-      synchronize: true,
+      synchronize: process.env.TYPEORM_SYNCHRONIZE === 'true',
+      migrationsRun: process.env.TYPEORM_SYNCHRONIZE !== 'true',
+      migrations: [require('path').join(__dirname, 'migrations', '*.{ts,js}')],
     }),
     TypeOrmModule.forFeature([
       Users,
@@ -156,6 +163,13 @@ import { NotificationModule } from './modules/notification.module';
       TicketActivity,
     ]),
     ScheduleModule.forRoot(),
+    // Global rate limit — defaults are conservative; specific endpoints
+    // can opt out with @SkipThrottle() or tighten with @Throttle({...}).
+    ThrottlerModule.forRoot([
+      { name: 'short', ttl: 1000, limit: 30 },
+      { name: 'medium', ttl: 10_000, limit: 200 },
+      { name: 'long', ttl: 60_000, limit: 1000 },
+    ]),
     AccessControlModule,
     DevicesModule,
     UsersModule,
@@ -181,8 +195,11 @@ import { NotificationModule } from './modules/notification.module';
     KnowledgeModule,
     NotificationModule,
   ],
-  controllers: [],
-  providers: [],
+  controllers: [HealthController],
+  providers: [
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
+    { provide: APP_INTERCEPTOR, useClass: RequestLoggingInterceptor },
+  ],
 })
 export class AppModule {
   constructor(private dataSource: DataSource) {}

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Tickets } from 'src/entities/tickets.entity';
@@ -57,6 +57,8 @@ const ALLOWED_ATTACHMENT_MIME = new Set([
 
 @Injectable()
 export class TicketsService {
+  private readonly logger = new Logger(TicketsService.name);
+
   constructor(
     @InjectRepository(Tickets)
     private ticketsRepository: Repository<Tickets>,
@@ -270,7 +272,11 @@ export class TicketsService {
           }
         }
       } catch (err) {
-        // notifications/mail are best-effort
+        // notifications/mail are best-effort — never block the ticket
+        // update on a downstream failure, just record it.
+        this.logger.warn(
+          `Notify/mail post-update failed for ticket ${updated.id}: ${(err as Error).message}`,
+        );
       }
 
       return updated;
@@ -703,7 +709,10 @@ export class TicketsService {
         });
       }
     } catch (err) {
-      // Quiet failure — comment already committed.
+      // Comment already committed; downstream notify/mail must not roll back.
+      this.logger.warn(
+        `Comment post-hooks (mention/mail) failed for ticket ${ticketId}: ${(err as Error).message}`,
+      );
     }
 
     return withAuthor;

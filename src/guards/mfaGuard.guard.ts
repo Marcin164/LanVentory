@@ -5,13 +5,9 @@ import {
   Injectable,
   Logger,
 } from '@nestjs/common';
-import { initBaseAuth } from '@propelauth/node';
+import { propelAuth } from 'src/helpers/propelAuthClient';
 
-const { fetchUserMfaMethods } = initBaseAuth({
-  authUrl: 'https://3187297.propelauthtest.com',
-  apiKey:
-    '0748e2c0b528c828501effb1d3e42bced3af1a9b51047c586a101715ce367db978f52483b7d686bf22438f029911a9b7',
-});
+const fetchUserMfaMethods = (propelAuth as any).fetchUserMfaMethods;
 
 type CacheEntry = { hasMfa: boolean; expiresAt: number };
 const TTL_MS = 5 * 60 * 1000;
